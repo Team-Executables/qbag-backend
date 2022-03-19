@@ -1,3 +1,5 @@
+from turtle import position
+from unicodedata import name
 from django.db import models
 from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager, PermissionsMixin)
@@ -8,7 +10,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, name, email, employment, user_type, password=None, active=True, staff=False, admin=False, verified=False):
+    def create_user(self, name, email, employment, idproof, user_type, password=None, active=True, staff=False, admin=False, verified=False):
         if not email:
             raise ValueError("Users must have an email address")
 
@@ -19,6 +21,7 @@ class UserManager(BaseUserManager):
             name = name,
             email=self.normalize_email(email),
             employment=employment,
+            idproof=idproof,
             user_type = user_type
         )
         user_obj.set_password(password)
@@ -68,6 +71,7 @@ class User(AbstractBaseUser):
     name = models.CharField(max_length=50, blank=True)
     email = models.EmailField(max_length=255, unique=True)
     employment=models.CharField(max_length=100, blank=True)
+    idproof = models.FileField(blank=True, null=True, upload_to='idproof/')
     is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -96,3 +100,25 @@ class User(AbstractBaseUser):
             'refresh': str(refresh),
             'access': str(refresh.access_token)
         }
+
+
+class Other(models.Model):
+    name = models.CharField(max_length=100, blank=True)
+    email = models.EmailField(max_length=200)
+    education = models.CharField(max_length=50, blank=True)
+    employment=models.CharField(max_length=100, blank=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.email
+
+class Teacher(models.Model):
+    name = models.CharField(max_length=100, blank=True)
+    email = models.EmailField(max_length=200)
+    employment=models.CharField(max_length=100, blank=True)
+    college = models.CharField(max_length=200, blank=True)
+    position = models.CharField(max_length=100, blank=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.email

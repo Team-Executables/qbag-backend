@@ -2,7 +2,7 @@ from django.contrib import admin
 from rest_framework_simplejwt.token_blacklist import models
 from rest_framework_simplejwt.token_blacklist.admin import OutstandingTokenAdmin
 from django.contrib.auth import get_user_model
-# from .models import Student, Teacher
+from .models import Other, Teacher
 # Register your models here.
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
@@ -90,5 +90,5 @@ admin.site.register(models.OutstandingToken, NewOutstandingTokenAdmin)
 
 admin.site.register(User, UserAdmin)
 admin.site.unregister(Group)
-# admin.site.register(Student)
-# admin.site.register(Teacher)
+admin.site.register(Other)
+admin.site.register(Teacher)

@@ -137,7 +137,7 @@ class LoginAPIView(generics.GenericAPIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         user_data = serializer.data
-        # idproof = user.idproof.url
+        idproof = user.idproof.url
         user_id = user.pk
         if user.user_type == "other":
             oth = Other.objects.get(email=user.email)
@@ -145,7 +145,7 @@ class LoginAPIView(generics.GenericAPIView):
             name=oth.name
             employment=oth.employment
             education=oth.education
-            return Response({'user_data': user_data, 'user_id':user_id, 'other_id':oth.pk, 'email':email, 'name':name, 'employment':employment, 'education':education})
+            return Response({'user_data': user_data, 'user_id':user_id, 'other_id':oth.pk, 'email':email, 'name':name, 'idproof':idproof, 'employment':employment, 'education':education})
         else:
             tea = Teacher.objects.get(email=user.email)
             email=tea.email
@@ -153,7 +153,7 @@ class LoginAPIView(generics.GenericAPIView):
             employment=tea.employment
             college = tea.college
             position = tea.position
-            return Response({'user_data': user_data, 'user_id':user_id, 'teacher_id':tea.pk, 'email':email, 'name':name, 'employment':employment, 'college':college, 'position':position})
+            return Response({'user_data': user_data, 'user_id':user_id, 'teacher_id':tea.pk, 'email':email, 'name':name, 'idproof':idproof, 'employment':employment, 'college':college, 'position':position})
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

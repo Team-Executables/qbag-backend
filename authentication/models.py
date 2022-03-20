@@ -32,22 +32,24 @@ class UserManager(BaseUserManager):
         user_obj.save(using=self._db)
         return user_obj
 
-    def create_staffuser(self, name, email, employment, password=None):
+    def create_staffuser(self, name, email, employment, idproof=None, password=None):
         user = self.create_user(
             name,
             email,
             employment,
+            idproof,
             password=password,
             staff=True
         )
 
         return user
     
-    def create_superuser(self, name, email, employment, password=None):
+    def create_superuser(self, name, email, employment, idproof=None,password=None):
         user = self.create_user(
             name,
             email,
             employment,
+            idproof,
             user_type = 'other',
             password=password,
             staff=True,

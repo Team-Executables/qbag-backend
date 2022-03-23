@@ -210,3 +210,33 @@ class GetSimilarQuestions(generics.GenericAPIView):
         # print(tensor_list)
 
         return Response(objs_ser, status=status.HTTP_200_OK)
+
+
+# Voting Views
+class VotingView(generics.GenericAPIView):
+    permission_classes = (IsTeacher, )
+    serializer_class = VoteSerializer
+
+    def post(self, request):
+        data = request.data
+
+        vote_data = {}
+        vote_data['teacher'] = request.user.teacher.id
+        print(vote_data['teacher'])
+        vote_data['vote'] = data.get('vote')
+        vote_data['question'] = data.get('question')
+
+        if Vote.objects.filter(teacher=vote_data['teacher'], question=vote_data['question']).exists():
+            Vote.objects.filter(teacher=vote_data['teacher'], question=vote_data['question']).update(
+                vote=vote_data['vote'])
+        else:
+            serializer = self.serializer_class(data=vote_data)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+
+        value = "Upvoted" if vote_data['vote'] == '1' else "Downvoted"
+
+        return Response({
+            "message": "Voted",
+            "vote_data": value
+        }, status=status.HTTP_201_CREATED)

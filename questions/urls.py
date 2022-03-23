@@ -20,5 +20,6 @@ urlpatterns = [
     path('create', createQuestionsView.as_view(), name="create-question"),
 	path('<int:ques_id>', GetQuestionView.as_view(), name="get-question"),
     path('retrieve', RetreiveQuestionView.as_view(), name="retrieve-question"),
-	path('getsimilar/<int:ques_id>', GetSimilarQuestions.as_view(), name="get-similar-questions")
+	path('getsimilar/<int:ques_id>', GetSimilarQuestions.as_view(), name="get-similar-questions"),
+    path('vote', VotingView.as_view(), name="vote-question"),
 ]

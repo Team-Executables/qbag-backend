@@ -47,9 +47,13 @@ class createQuestionsView(generics.GenericAPIView):
                 tensor_list.append(new_model.encode([i.title], convert_to_tensor=True))
             encoded_sent = new_model.encode([question_data['title']], convert_to_tensor=True)
             
-            for i in tensor_list:
-                if cosine_similarity(encoded_sent, i) > .80:
-                    return Response({'message': 'Similar question already exists'}, status=status.HTTP_409_CONFLICT)
+            for i, val in enumerate(tensor_list):
+                if cosine_similarity(encoded_sent, val) > .80:
+                    similar_data = QuestionSerializer(instance=ques_objs[i])
+                    return Response({
+                        'message': 'Similar question already exists',
+                        'similar_question_data': similar_data.data
+                        }, status=status.HTTP_409_CONFLICT)
             
             # embed2 = new_model.encode(sent2, convert_to_tensor=True)
             question = serializer.save()
@@ -78,7 +82,10 @@ class createQuestionsView(generics.GenericAPIView):
                     value=pair['value']
                 )
 
-        return Response({"message": "Accepted"} ,status=status.HTTP_201_CREATED)
+        return Response({
+            "message": "Accepted",
+            "question_data": serializer.data
+            } ,status=status.HTTP_201_CREATED)
 
 
 class GetQuestionView(generics.GenericAPIView):

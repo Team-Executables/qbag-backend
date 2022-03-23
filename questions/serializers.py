@@ -13,8 +13,6 @@ class QuestionSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-
-
 class OptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Option

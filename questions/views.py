@@ -61,6 +61,58 @@ class createQuestionsView(generics.GenericAPIView):
 
         return Response({"message": "Accepted"} ,status=status.HTTP_201_CREATED)
 
+# from qbag_api.permissions import IsOther, IsTeacher
+# from .models import Question, Option, Match, Keyword
+# from .serializers import QuestionSerializer, OptionSerializer, KeywordSerializer, MatchSerializer
+# from rest_framework import generics, permissions,  status
+# from django.core.exceptions import ObjectDoesNotExist
+# from rest_framework.response import Response
+
+class GetQuestionView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = QuestionSerializer
+
+    def get(self, request, ques_id):
+
+        try:
+            ques = Question.objects.get(id=ques_id)
+        except ObjectDoesNotExist:
+            return Response({
+                'message':'Invalid Class Id'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer = QuestionSerializer(instance=ques)
+        keyword_obj = Keyword.objects.filter(question=ques)
+        keyword_ser = KeywordSerializer(instance=keyword_obj, many=True)
+
+        if serializer.data['type'] != 'd':
+            opt_obj = Option.objects.filter(question=ques)
+            opt_ser = OptionSerializer(instance=opt_obj, many=True)
+            data = {
+                'question_data': serializer.data,
+                'keyword_data': keyword_ser.data,
+                'option_data': opt_ser.data
+            }
+        else:
+            match_obj = Match.objects.filter(question=ques)
+            match_ser = MatchSerializer(instance=match_obj, many=True)
+            data = {
+                'question_data': serializer.data,
+                'keyword_data': keyword_ser.data,
+                'match_data': match_ser.data
+            }
+
+        return Response(data, status=status.HTTP_200_OK)
+
+'''
+return Response(
+    {
+        'question_data': ques_ser.data,
+        'match_data': match_ser.data
+    }
+)
+'''
+
 
 
 

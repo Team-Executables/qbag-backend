@@ -19,4 +19,5 @@ from .views import *
 urlpatterns = [
     path('create', createQuestionsView.as_view(), name="create-question"),
 	path('<int:ques_id>', GetQuestionView.as_view(), name="get-question"),
+    path('retrieve', RetreiveQuestionView.as_view(), name="retrieve-question")
 ]

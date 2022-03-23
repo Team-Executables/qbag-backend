@@ -19,6 +19,7 @@ from operator import itemgetter
 with open('./questions/saved_model.pickle', 'rb') as handle:
     new_model = pickle.load(handle)
 
+
 class createQuestionsView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = QuestionSerializer
@@ -26,35 +27,38 @@ class createQuestionsView(generics.GenericAPIView):
     def post(self, request):
         data = request.data
 
-        question_data={}
-        question_data['type']=data.get('type')
-        question_data['setter']=request.user.pk
-        question_data['grade']=data.get('grade')
-        question_data['board']=data.get('board')
-        question_data['marks']=data.get('marks')
-        question_data['difficulty']=data.get('difficulty')
-        question_data['subject']=data.get('subject')
-        question_data['title']=data.get('title')
+        question_data = {}
+        question_data['type'] = data.get('type')
+        question_data['setter'] = request.user.pk
+        question_data['grade'] = data.get('grade')
+        question_data['board'] = data.get('board')
+        question_data['marks'] = data.get('marks')
+        question_data['difficulty'] = data.get('difficulty')
+        question_data['subject'] = data.get('subject')
+        question_data['title'] = data.get('title')
 
         keywords = data.get('keywords')
 
         serializer = self.serializer_class(data=question_data)
         if serializer.is_valid(raise_exception=True):
-            
-            ques_objs = Question.objects.filter(type=question_data['type'], grade=question_data['grade'], board=question_data['board'], subject=question_data['subject'])
-            tensor_list=[]
+
+            ques_objs = Question.objects.filter(
+                type=question_data['type'], grade=question_data['grade'], board=question_data['board'], subject=question_data['subject'])
+            tensor_list = []
             for i in ques_objs:
-                tensor_list.append(new_model.encode([i.title], convert_to_tensor=True))
-            encoded_sent = new_model.encode([question_data['title']], convert_to_tensor=True)
-            
+                tensor_list.append(new_model.encode(
+                    [i.title], convert_to_tensor=True))
+            encoded_sent = new_model.encode(
+                [question_data['title']], convert_to_tensor=True)
+
             for i, val in enumerate(tensor_list):
                 if cosine_similarity(encoded_sent, val) > .80:
                     similar_data = QuestionSerializer(instance=ques_objs[i])
                     return Response({
                         'message': 'Similar question already exists',
                         'similar_question_data': similar_data.data
-                        }, status=status.HTTP_409_CONFLICT)
-            
+                    }, status=status.HTTP_409_CONFLICT)
+
             # embed2 = new_model.encode(sent2, convert_to_tensor=True)
             question = serializer.save()
 
@@ -63,7 +67,7 @@ class createQuestionsView(generics.GenericAPIView):
                 question=question,
                 keyword=keyword
             )
-        
+
         if question_data['type'] != "d":
             options = data.get("options")
             for option in options:
@@ -84,7 +88,7 @@ class createQuestionsView(generics.GenericAPIView):
         return Response({
             "message": "Accepted",
             "question_data": serializer.data
-            } ,status=status.HTTP_201_CREATED)
+        }, status=status.HTTP_201_CREATED)
 
 
 class GetQuestionView(generics.GenericAPIView):
@@ -96,9 +100,9 @@ class GetQuestionView(generics.GenericAPIView):
             ques = Question.objects.get(id=ques_id)
         except ObjectDoesNotExist:
             return Response({
-                'message':'Invalid Class Id'
+                'message': 'Invalid Class Id'
             }, status=status.HTTP_400_BAD_REQUEST)
-        
+
         serializer = GetQuestionSerializer(instance=ques)
         keyword_obj = Keyword.objects.filter(question=ques)
         keyword_ser = KeywordSerializer(instance=keyword_obj, many=True)
@@ -126,39 +130,40 @@ class GetQuestionView(generics.GenericAPIView):
 class RetreiveQuestionView(generics.GenericAPIView):
     permission_classes = (IsTeacher,)
     serializer_class = GetQuestionSerializer
-    
+
     def post(self, request):
         data = request.data
         all_ques = list()
-        
+
         easy_ques = Question.objects.filter(
-            difficulty='a', 
-            board=data.get('board'), 
+            difficulty='a',
+            board=data.get('board'),
             grade=data.get('grade')
         )[:int(data.get('easy'))]
         all_ques.append(easy_ques)
-        
+
         medium_ques = Question.objects.filter(
             difficulty='b',
             board=data.get('board'),
             grade=data.get('grade')
         )[:int(data.get('medium'))]
         all_ques.append(medium_ques)
-        
+
         hard_ques = Question.objects.filter(
             difficulty='c',
-            board=data.get('board'), 
+            board=data.get('board'),
             grade=data.get('grade')
         )[:int(data.get('hard'))]
         all_ques.append(hard_ques)
-        
+
         questions = list()
-        
+
         for diff in all_ques:
             for ques in diff:
                 serializer = GetQuestionSerializer(instance=ques)
                 keyword_obj = Keyword.objects.filter(question=ques)
-                keyword_ser = KeywordSerializer(instance=keyword_obj, many=True)
+                keyword_ser = KeywordSerializer(
+                    instance=keyword_obj, many=True)
 
                 if serializer.data['type'] != 'd':
                     opt_obj = Option.objects.filter(question=ques)
@@ -176,9 +181,9 @@ class RetreiveQuestionView(generics.GenericAPIView):
                         'keyword_data': keyword_ser.data,
                         'match_data': match_ser.data
                     })
-                
 
         return Response(questions, status=status.HTTP_200_OK)
+
 
 class GetSimilarQuestions(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated, )
@@ -189,19 +194,22 @@ class GetSimilarQuestions(generics.GenericAPIView):
             ques = Question.objects.get(id=ques_id)
         except ObjectDoesNotExist:
             return Response({
-                'message':'Invalid Class Id'
+                'message': 'Invalid Class Id'
             }, status=status.HTTP_400_BAD_REQUEST)
         serializer = GetQuestionSerializer(instance=ques)
-        ques_objs = Question.objects.filter(type=serializer.data['type'], grade=serializer.data['grade'], board=serializer.data['board'], subject=serializer.data['subject'])
+        ques_objs = Question.objects.filter(
+            type=serializer.data['type'], grade=serializer.data['grade'], board=serializer.data['board'], subject=serializer.data['subject'])
 
         if len(ques_objs) > 3:
             ques_objs = ques_objs[:3]
-        
-        tensor_list=[]
+
+        tensor_list = []
         for i in ques_objs:
-            tensor_list.append([new_model.encode([i.title], convert_to_tensor=True), 0, i])
-        encoded_sent = new_model.encode([serializer.data['title']], convert_to_tensor=True)
-        
+            tensor_list.append(
+                [new_model.encode([i.title], convert_to_tensor=True), 0, i])
+        encoded_sent = new_model.encode(
+            [serializer.data['title']], convert_to_tensor=True)
+
         for i in tensor_list:
             i[1] = cosine_similarity(encoded_sent, i[0])
         tensor_list = sorted(tensor_list, key=itemgetter(1))
@@ -222,9 +230,15 @@ class VotingView(generics.GenericAPIView):
 
         vote_data = {}
         vote_data['teacher'] = request.user.teacher.id
-        print(vote_data['teacher'])
         vote_data['vote'] = data.get('vote')
         vote_data['question'] = data.get('question')
+
+        question = Question.objects.get(id=vote_data['question'])
+        if int(question.setter.id) == int(request.user.id):
+            return Response({
+                "message": "You cannot vote",
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
 
         if Vote.objects.filter(teacher=vote_data['teacher'], question=vote_data['question']).exists():
             Vote.objects.filter(teacher=vote_data['teacher'], question=vote_data['question']).update(

@@ -1,6 +1,7 @@
 from re import T
 from turtle import title
 from django.shortcuts import render
+from numpy import tensordot
 from rest_framework import generics, status, views, permissions
 from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
@@ -13,6 +14,7 @@ from .models import *
 from .serializers import *
 import pickle
 from sklearn.metrics.pairwise import cosine_similarity
+from operator import itemgetter
 
 with open('./questions/saved_model.pickle', 'rb') as handle:
     new_model = pickle.load(handle)
@@ -78,12 +80,6 @@ class createQuestionsView(generics.GenericAPIView):
 
         return Response({"message": "Accepted"} ,status=status.HTTP_201_CREATED)
 
-# from qbag_api.permissions import IsOther, IsTeacher
-# from .models import Question, Option, Match, Keyword
-# from .serializers import QuestionSerializer, OptionSerializer, KeywordSerializer, MatchSerializer
-# from rest_framework import generics, permissions,  status
-# from django.core.exceptions import ObjectDoesNotExist
-# from rest_framework.response import Response
 
 class GetQuestionView(generics.GenericAPIView):
     permission_classes = (IsTeacher,)
@@ -177,21 +173,34 @@ class RetreiveQuestionView(generics.GenericAPIView):
                 
 
         return Response(questions, status=status.HTTP_200_OK)
-        
-        
-        
-        
-        
 
-'''
-return Response(
-    {
-        'question_data': ques_ser.data,
-        'match_data': match_ser.data
-    }
-)
-'''
+class GetSimilarQuestions(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated, )
+    serializer_class = QuestionSerializer
 
+    def post(self, request, ques_id):
+        try:
+            ques = Question.objects.get(id=ques_id)
+        except ObjectDoesNotExist:
+            return Response({
+                'message':'Invalid Class Id'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        serializer = QuestionSerializer(instance=ques)
+        ques_objs = Question.objects.filter(type=serializer.data['type'], grade=serializer.data['grade'], board=serializer.data['board'], subject=serializer.data['subject'])
 
+        if len(ques_objs) > 3:
+            ques_objs = ques_objs[:3]
+        
+        tensor_list=[]
+        for i in ques_objs:
+            tensor_list.append([new_model.encode([i.title], convert_to_tensor=True), 0, i])
+        encoded_sent = new_model.encode([serializer.data['title']], convert_to_tensor=True)
+        
+        for i in tensor_list:
+            i[1] = cosine_similarity(encoded_sent, i[0])
+        tensor_list = sorted(tensor_list, key=itemgetter(1))
+        objs = [i[2] for i in tensor_list]
+        objs_ser = [QuestionSerializer(obj).data for obj in objs]
+        # print(tensor_list)
 
-
+        return Response(objs_ser, status=status.HTTP_200_OK)

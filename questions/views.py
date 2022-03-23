@@ -74,7 +74,6 @@ class createQuestionsView(generics.GenericAPIView):
                 )
         else:
             match_pairs = data.get("match")
-            print("Inside else")
             for pair in match_pairs:
                 Match.objects.create(
                     question=question,

@@ -1,5 +1,5 @@
 from django.db import models
-from authentication.models import User
+from authentication.models import Teacher, User
 
 # Create your models here.
 class Question(models.Model):
@@ -11,8 +11,6 @@ class Question(models.Model):
     difficulty = models.CharField(max_length=2)
     subject = models.CharField(max_length=100)
     title = models.TextField(max_length=500)
-    upvotes = models.IntegerField(default=0)
-    downvotes = models.IntegerField(default=0)
     
     def __str__(self):
         return f"{self.type}-{self.title}"
@@ -42,3 +40,15 @@ class Keyword(models.Model):
 
     def __str__(self):
         return f"{self.question}-{self.keyword}"
+
+
+class Vote(models.Model):
+    class Meta:
+        unique_together = (('teacher', 'question'),)
+    
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    vote = models.IntegerField()
+    
+    def __str__(self):
+        return f"{self.question}, {self.teacher}: {self.vote}"

@@ -250,6 +250,16 @@ class VotingView(generics.GenericAPIView):
 
         value = "Upvoted" if vote_data['vote'] == '1' else "Downvoted"
 
+        threshold = 200
+        
+        if value == "Downvoted":
+            total_votes = Vote.objects.filter(question=vote_data['question']).count()
+            down_votes = Vote.objects.filter(question=vote_data['question'], vote=0).count()
+
+            if total_votes > threshold and down_votes > total_votes / 2:
+                Question.objects.filter(id=vote_data['question']).delete()
+        
+        
         return Response({
             "message": "Voted",
             "vote_data": value

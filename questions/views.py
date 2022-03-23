@@ -89,7 +89,7 @@ class createQuestionsView(generics.GenericAPIView):
 
 class GetQuestionView(generics.GenericAPIView):
     permission_classes = (IsTeacher,)
-    serializer_class = QuestionSerializer
+    serializer_class = GetQuestionSerializer
 
     def get(self, request, ques_id):
         try:
@@ -99,7 +99,7 @@ class GetQuestionView(generics.GenericAPIView):
                 'message':'Invalid Class Id'
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        serializer = QuestionSerializer(instance=ques)
+        serializer = GetQuestionSerializer(instance=ques)
         keyword_obj = Keyword.objects.filter(question=ques)
         keyword_ser = KeywordSerializer(instance=keyword_obj, many=True)
 
@@ -125,7 +125,7 @@ class GetQuestionView(generics.GenericAPIView):
 
 class RetreiveQuestionView(generics.GenericAPIView):
     permission_classes = (IsTeacher,)
-    serializer_class = QuestionSerializer
+    serializer_class = GetQuestionSerializer
     
     def post(self, request):
         data = request.data
@@ -156,7 +156,7 @@ class RetreiveQuestionView(generics.GenericAPIView):
         
         for diff in all_ques:
             for ques in diff:
-                serializer = QuestionSerializer(instance=ques)
+                serializer = GetQuestionSerializer(instance=ques)
                 keyword_obj = Keyword.objects.filter(question=ques)
                 keyword_ser = KeywordSerializer(instance=keyword_obj, many=True)
 
@@ -182,7 +182,7 @@ class RetreiveQuestionView(generics.GenericAPIView):
 
 class GetSimilarQuestions(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated, )
-    serializer_class = QuestionSerializer
+    serializer_class = GetQuestionSerializer
 
     def post(self, request, ques_id):
         try:
@@ -191,7 +191,7 @@ class GetSimilarQuestions(generics.GenericAPIView):
             return Response({
                 'message':'Invalid Class Id'
             }, status=status.HTTP_400_BAD_REQUEST)
-        serializer = QuestionSerializer(instance=ques)
+        serializer = GetQuestionSerializer(instance=ques)
         ques_objs = Question.objects.filter(type=serializer.data['type'], grade=serializer.data['grade'], board=serializer.data['board'], subject=serializer.data['subject'])
 
         if len(ques_objs) > 3:
@@ -206,7 +206,7 @@ class GetSimilarQuestions(generics.GenericAPIView):
             i[1] = cosine_similarity(encoded_sent, i[0])
         tensor_list = sorted(tensor_list, key=itemgetter(1))
         objs = [i[2] for i in tensor_list]
-        objs_ser = [QuestionSerializer(obj).data for obj in objs]
+        objs_ser = [GetQuestionSerializer(obj).data for obj in objs]
         # print(tensor_list)
 
         return Response(objs_ser, status=status.HTTP_200_OK)

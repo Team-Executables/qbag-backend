@@ -1,4 +1,5 @@
 from re import T
+from turtle import title
 from django.shortcuts import render
 from rest_framework import generics, status, views, permissions
 from rest_framework.response import Response
@@ -10,6 +11,11 @@ from datetime import datetime
 from qbag_api.permissions import IsTeacher, IsOther
 from .models import *
 from .serializers import *
+import pickle
+from sklearn.metrics.pairwise import cosine_similarity
+
+with open('./questions/saved_model.pickle', 'rb') as handle:
+    new_model = pickle.load(handle)
 
 class createQuestionsView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated, )
@@ -32,6 +38,18 @@ class createQuestionsView(generics.GenericAPIView):
 
         serializer = self.serializer_class(data=question_data)
         if serializer.is_valid(raise_exception=True):
+            
+            ques_objs = Question.objects.filter(type=question_data['type'], grade=question_data['grade'], board=question_data['board'], subject=question_data['subject'])
+            tensor_list=[]
+            for i in ques_objs:
+                tensor_list.append(new_model.encode([i.title], convert_to_tensor=True))
+            encoded_sent = new_model.encode([question_data['title']], convert_to_tensor=True)
+            
+            for i in tensor_list:
+                if cosine_similarity(encoded_sent, i) > .80:
+                    return Response({'message': 'Similar question already exists'}, status=status.HTTP_409_CONFLICT)
+            
+            # embed2 = new_model.encode(sent2, convert_to_tensor=True)
             question = serializer.save()
 
         for keyword in keywords:

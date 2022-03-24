@@ -41,26 +41,28 @@ class createQuestionsView(generics.GenericAPIView):
 
         serializer = self.serializer_class(data=question_data)
         if serializer.is_valid(raise_exception=True):
+            if question_data['type'] != "d":
+                ques_objs = Question.objects.filter(
+                    type=question_data['type'], grade=question_data['grade'], board=question_data['board'], subject=question_data['subject'])
+                tensor_list = []
+                for i in ques_objs:
+                    tensor_list.append(new_model.encode(
+                        [i.title], convert_to_tensor=True))
+                encoded_sent = new_model.encode(
+                    [question_data['title']], convert_to_tensor=True)
 
-            ques_objs = Question.objects.filter(
-                type=question_data['type'], grade=question_data['grade'], board=question_data['board'], subject=question_data['subject'])
-            tensor_list = []
-            for i in ques_objs:
-                tensor_list.append(new_model.encode(
-                    [i.title], convert_to_tensor=True))
-            encoded_sent = new_model.encode(
-                [question_data['title']], convert_to_tensor=True)
+                for i, val in enumerate(tensor_list):
+                    if cosine_similarity(encoded_sent, val) > .80:
+                        similar_data = QuestionSerializer(instance=ques_objs[i])
+                        return Response({
+                            'message': 'Similar question already exists',
+                            'similar_question_data': similar_data.data
+                        }, status=status.HTTP_409_CONFLICT)
 
-            for i, val in enumerate(tensor_list):
-                if cosine_similarity(encoded_sent, val) > .80:
-                    similar_data = QuestionSerializer(instance=ques_objs[i])
-                    return Response({
-                        'message': 'Similar question already exists',
-                        'similar_question_data': similar_data.data
-                    }, status=status.HTTP_409_CONFLICT)
-
-            # embed2 = new_model.encode(sent2, convert_to_tensor=True)
-            question = serializer.save()
+                # embed2 = new_model.encode(sent2, convert_to_tensor=True)
+                question = serializer.save()
+            else:
+                question = serializer.save()
 
         for keyword in keywords:
             Keyword.objects.create(

@@ -171,18 +171,24 @@ class RetreiveQuestionView(generics.GenericAPIView):
                 if serializer.data['type'] != 'd':
                     opt_obj = Option.objects.filter(question=ques)
                     opt_ser = OptionSerializer(instance=opt_obj, many=True)
+                    vote_obj = Vote.objects.filter(question=ques)
+                    vote_ser = VoteSerializer(instance=vote_obj, many=True)
                     questions.append({
                         'question_data': serializer.data,
                         'keyword_data': keyword_ser.data,
-                        'option_data': opt_ser.data
+                        'option_data': opt_ser.data,
+                        'vote_data': vote_ser.data
                     })
                 else:
                     match_obj = Match.objects.filter(question=ques)
                     match_ser = MatchSerializer(instance=match_obj, many=True)
+                    vote_obj = Vote.objects.filter(question=ques)
+                    vote_ser = VoteSerializer(instance=vote_obj, many=True)
                     questions.append({
                         'question_data': serializer.data,
                         'keyword_data': keyword_ser.data,
-                        'match_data': match_ser.data
+                        'match_data': match_ser.data,
+                        'vote_data': vote_ser.data
                     })
 
         return Response(questions, status=status.HTTP_200_OK)

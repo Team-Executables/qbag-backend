@@ -1,3 +1,4 @@
+import imp
 from re import T
 from turtle import title
 from django.shortcuts import render
@@ -15,6 +16,11 @@ from .serializers import *
 import pickle
 from sklearn.metrics.pairwise import cosine_similarity
 from operator import itemgetter
+
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
+import json
+
 
 with open('./questions/saved_model.pickle', 'rb') as handle:
     new_model = pickle.load(handle)
@@ -183,8 +189,18 @@ class RetreiveQuestionView(generics.GenericAPIView):
                         'keyword_data': keyword_ser.data,
                         'match_data': match_ser.data
                     })
-
-        return Response(questions, status=status.HTTP_200_OK)
+        email = 'youremail@here.com'
+        json_object = json.dumps(questions, indent = 4)
+        json_info = json_object
+        api_url = 'https://data.page/api/getcsv'
+        post_fields = {'email': email, 'json': json_info}
+        request = Request(api_url, urlencode(post_fields).encode())
+        csv = urlopen(request).read().decode()
+    
+        return Response({
+            'questions':questions,
+            'csv': csv
+        }, status=status.HTTP_200_OK)
 
 
 class GetSimilarQuestions(generics.GenericAPIView):

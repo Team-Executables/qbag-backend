@@ -1,4 +1,3 @@
-import imp
 from re import T
 from turtle import title
 from django.shortcuts import render
@@ -16,11 +15,6 @@ from .serializers import *
 import pickle
 from sklearn.metrics.pairwise import cosine_similarity
 from operator import itemgetter
-
-from urllib.parse import urlencode
-from urllib.request import Request, urlopen
-import json
-
 
 with open('./questions/saved_model.pickle', 'rb') as handle:
     new_model = pickle.load(handle)
@@ -59,7 +53,8 @@ class createQuestionsView(generics.GenericAPIView):
 
                 for i, val in enumerate(tensor_list):
                     if cosine_similarity(encoded_sent, val) > .80:
-                        similar_data = QuestionSerializer(instance=ques_objs[i])
+                        similar_data = QuestionSerializer(
+                            instance=ques_objs[i])
                         return Response({
                             'message': 'Similar question already exists',
                             'similar_question_data': similar_data.data
@@ -189,18 +184,8 @@ class RetreiveQuestionView(generics.GenericAPIView):
                         'keyword_data': keyword_ser.data,
                         'match_data': match_ser.data
                     })
-        email = 'youremail@here.com'
-        json_object = json.dumps(questions, indent = 4)
-        json_info = json_object
-        api_url = 'https://data.page/api/getcsv'
-        post_fields = {'email': email, 'json': json_info}
-        request = Request(api_url, urlencode(post_fields).encode())
-        csv = urlopen(request).read().decode()
-    
-        return Response({
-            'questions':questions,
-            'csv': csv
-        }, status=status.HTTP_200_OK)
+
+        return Response(questions, status=status.HTTP_200_OK)
 
 
 class GetSimilarQuestions(generics.GenericAPIView):
@@ -257,7 +242,6 @@ class VotingView(generics.GenericAPIView):
                 "message": "You cannot vote",
             }, status=status.HTTP_401_UNAUTHORIZED)
 
-
         if Vote.objects.filter(teacher=vote_data['teacher'], question=vote_data['question']).exists():
             Vote.objects.filter(teacher=vote_data['teacher'], question=vote_data['question']).update(
                 vote=vote_data['vote'])
@@ -269,15 +253,16 @@ class VotingView(generics.GenericAPIView):
         value = "Upvoted" if vote_data['vote'] == '1' else "Downvoted"
 
         threshold = 200
-        
+
         if value == "Downvoted":
-            total_votes = Vote.objects.filter(question=vote_data['question']).count()
-            down_votes = Vote.objects.filter(question=vote_data['question'], vote=0).count()
+            total_votes = Vote.objects.filter(
+                question=vote_data['question']).count()
+            down_votes = Vote.objects.filter(
+                question=vote_data['question'], vote=0).count()
 
             if total_votes > threshold and down_votes > total_votes / 2:
                 Question.objects.filter(id=vote_data['question']).delete()
-        
-        
+
         return Response({
             "message": "Voted",
             "vote_data": value

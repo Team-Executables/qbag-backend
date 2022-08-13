@@ -5,10 +5,12 @@ from pyexpat import model
 from statistics import mode
 from rest_framework import serializers
 from .models import (
+    Paper,
     Question,
     Option,
     Match,
     Keyword,
+    QuestionPaper,
     Vote
 )
 
@@ -31,6 +33,17 @@ class GetQuestionSerializer(serializers.ModelSerializer):
         model = Question
         fields = ['type', 'setter', 'grade', 'board', 'marks', 'difficulty', 'subject', 'title', 'setbyTeacher']
         
+
+class PaperSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Paper
+        fields = "__all__"
+
+
+class QuestionPaperSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuestionPaper
+        fields = "__all__"
 
 
 class OptionSerializer(serializers.ModelSerializer):

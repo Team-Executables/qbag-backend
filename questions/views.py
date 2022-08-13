@@ -277,3 +277,43 @@ class VotingView(generics.GenericAPIView):
             "message": "Voted",
             "vote_data": value
         }, status=status.HTTP_201_CREATED)
+        
+
+# Create Question Paper View
+class PaperView(generics.GenericAPIView):
+    permission_classes = (IsTeacher, )
+    serializer_class = PaperSerializer
+
+    def post(self, request):
+        data = request.data
+        questions = data['questions']
+        questions_list = [int(i) for i in questions.split(',')]
+        teacher = request.user.teacher.id
+        
+        paper = {
+            'teacher': teacher
+        }
+        serializer = self.serializer_class(data=paper)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            paper_id = serializer.data['id']
+            
+            for question in questions_list:
+                try:
+                    QuestionPaper.objects.create(
+                        paper=Paper.objects.get(id=paper_id), 
+                        question=Question.objects.get(id=question)
+                    )
+                except Exception as e:
+                    return Response({
+                        "message": "Unable to add questions",
+                        "exception": str(e)
+                    }, status=status.HTTP_400_BAD_REQUEST)
+                
+            return Response({
+                "message": "Question Paper Created",
+                "paper": serializer.data
+            }, status=status.HTTP_201_CREATED)
+        return Response({
+            "message": "Question Paper Not Created"
+        }, status=status.HTTP_400_BAD_REQUEST)

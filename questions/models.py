@@ -55,7 +55,7 @@ class Vote(models.Model):
         return f"{self.question}, {self.teacher}: {self.vote}"
     
 class Paper(models.Model):
-    setter = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
     
 
 class QuestionPaper(models.Model):

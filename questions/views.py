@@ -184,8 +184,8 @@ class RetreiveQuestionView(generics.GenericAPIView):
                 else:
                     match_obj = Match.objects.filter(question=ques)
                     match_ser = MatchSerializer(instance=match_obj, many=True)
-                    vote_obj = Vote.objects.filter(question=ques)
-                    vote_ser = VoteSerializer(instance=vote_obj, many=True)
+                    upvote = Vote.objects.filter(question=ques, vote=1).count()
+                    downvote = Vote.objects.filter(question=ques, vote=0).count()
                     questions.append({
                         'id': ques.id,
                         'upvote': upvote,
@@ -193,7 +193,6 @@ class RetreiveQuestionView(generics.GenericAPIView):
                         'question_data': serializer.data,
                         'keyword_data': keyword_ser.data,
                         'match_data': match_ser.data,
-                        'vote_data': vote_ser.data
                     })
 
         return Response(questions, status=status.HTTP_200_OK)

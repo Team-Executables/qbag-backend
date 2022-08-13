@@ -1,3 +1,4 @@
+from enum import unique
 from django.db import models
 from authentication.models import Teacher, User
 
@@ -52,3 +53,15 @@ class Vote(models.Model):
     
     def __str__(self):
         return f"{self.question}, {self.teacher}: {self.vote}"
+    
+class Paper(models.Model):
+    setter = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    
+
+class QuestionPaper(models.Model):
+    class Meta:
+        unique_together = (('paper', 'question'),)
+    
+    paper = models.ForeignKey(Paper, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+

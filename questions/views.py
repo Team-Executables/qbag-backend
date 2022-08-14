@@ -260,8 +260,12 @@ class VotingView(generics.GenericAPIView):
             }, status=status.HTTP_401_UNAUTHORIZED)
 
         if Vote.objects.filter(teacher=vote_data['teacher'], question=vote_data['question']).exists():
-            Vote.objects.filter(teacher=vote_data['teacher'], question=vote_data['question']).update(
-                vote=vote_data['vote'])
+            voteObj = Vote.objects.get(teacher=vote_data['teacher'], question=vote_data['question'])
+            if(voteObj.vote == vote_data['vote']):
+                return Response({
+                    "message": "You have already voted",
+                }, status=status.HTTP_401_UNAUTHORIZED)
+            Vote.objects.filter(teacher=vote_data['teacher'], question=vote_data['question']).update(vote=vote_data['vote'])
         else:
             serializer = self.serializer_class(data=vote_data)
             if serializer.is_valid(raise_exception=True):
@@ -293,12 +297,14 @@ class PaperView(generics.GenericAPIView):
 
     def post(self, request):
         data = request.data
+        name = data['name']
         questions = data['questions']
         questions_list = [int(i) for i in questions.split(',')]
         teacher = request.user.teacher.id
         
         paper = {
-            'teacher': teacher
+            'teacher': teacher,
+            'name': name
         }
         serializer = self.serializer_class(data=paper)
         if serializer.is_valid(raise_exception=True):

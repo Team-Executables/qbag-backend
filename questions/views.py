@@ -36,6 +36,7 @@ class createQuestionsView(generics.GenericAPIView):
         question_data['difficulty'] = data.get('difficulty')
         question_data['subject'] = data.get('subject')
         question_data['title'] = data.get('title')
+        question_data['medium'] = data.get('medium')
 
         keywords = data.get('keywords')
 
@@ -43,7 +44,7 @@ class createQuestionsView(generics.GenericAPIView):
         if serializer.is_valid(raise_exception=True):
             if question_data['type'] != "d":
                 ques_objs = Question.objects.filter(
-                    type=question_data['type'], grade=question_data['grade'], board=question_data['board'], subject=question_data['subject'])
+                    type=question_data['type'], grade=question_data['grade'], board=question_data['board'], subject=question_data['subject'], medium=question_data['medium'])
                 tensor_list = []
                 for i in ques_objs:
                     tensor_list.append(new_model.encode(
@@ -141,6 +142,8 @@ class RetreiveQuestionView(generics.GenericAPIView):
         easy_ques = Question.objects.filter(
             difficulty='a',
             board=data.get('board'),
+            medium=data.get('langMedium'),
+            subject=data.get('subject'),
             grade=data.get('grade')
         )[:int(data.get('easy'))]
         all_ques.append(easy_ques)
@@ -148,6 +151,8 @@ class RetreiveQuestionView(generics.GenericAPIView):
         medium_ques = Question.objects.filter(
             difficulty='b',
             board=data.get('board'),
+            medium=data.get('langMedium'),
+            subject=data.get('subject'),
             grade=data.get('grade')
         )[:int(data.get('medium'))]
         all_ques.append(medium_ques)
@@ -155,6 +160,8 @@ class RetreiveQuestionView(generics.GenericAPIView):
         hard_ques = Question.objects.filter(
             difficulty='c',
             board=data.get('board'),
+            medium=data.get('langMedium'),
+            subject=data.get('subject'),
             grade=data.get('grade')
         )[:int(data.get('hard'))]
         all_ques.append(hard_ques)

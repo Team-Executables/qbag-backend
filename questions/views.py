@@ -267,7 +267,7 @@ class VotingView(generics.GenericAPIView):
             if serializer.is_valid(raise_exception=True):
                 serializer.save()
 
-        value = "Upvoted" if vote_data['vote'] == '1' else "Downvoted"
+        value = "Upvoted" if vote_data['vote'] == 1 else "Downvoted"
 
         threshold = 200
 

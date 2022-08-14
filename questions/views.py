@@ -298,8 +298,7 @@ class PaperView(generics.GenericAPIView):
     def post(self, request):
         data = request.data
         name = data['name']
-        questions = data['questions']
-        questions_list = [int(i) for i in questions.split(',')]
+        questions_list = data['questions']
         teacher = request.user.teacher.id
         
         paper = {

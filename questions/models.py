@@ -11,6 +11,7 @@ class Question(models.Model):
     marks = models.IntegerField()
     difficulty = models.CharField(max_length=2)
     subject = models.CharField(max_length=100)
+    medium = models.CharField(max_length=50)
     title = models.TextField(max_length=500)
     
     def __str__(self):
@@ -56,6 +57,7 @@ class Vote(models.Model):
     
 class Paper(models.Model):
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    name = models.CharField(max_length=50)
     
 
 class QuestionPaper(models.Model):

@@ -23,5 +23,6 @@ urlpatterns = [
 	path('getsimilar/<int:ques_id>', GetSimilarQuestions.as_view(), name="get-similar-questions"),
     path('vote', VotingView.as_view(), name="vote-question"),
     path('create-paper', PaperView.as_view(), name="create-paper"),
-    path('getallpaper', GetAllPaperView.as_view(), name="get-all-paper")
+    path('all-papers', GetAllPaperView.as_view(), name="all-papers"),
+    path('questions-from-paper', GetQuestionFromPaperView.as_view(), name="questions-from-paper")
 ]

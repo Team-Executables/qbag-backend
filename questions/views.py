@@ -351,5 +351,59 @@ class GetAllPaperView(generics.GenericAPIView):
             temp_obj["total_marks"] = marks
             temp_obj["num_questions"] = num_questions
             data["value"].append(temp_obj)
-        print(data)
         return Response(data, status=status.HTTP_200_OK)
+
+# Get All Questions from a Paper
+class GetQuestionFromPaperView(generics.GenericAPIView):
+    permission_classes = (IsTeacher,)
+    serializer_class = GetQuestionSerializer
+
+    def post(self, request):
+        paper_id = request.data["paper_id"]
+        
+        if request.user.teacher.id != Paper.objects.get(id=paper_id).teacher.id:
+            return Response(
+                {"message": "Cannot access Paper created by another teacher"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
+        qp_objs = QuestionPaper.objects.filter(paper=paper_id)
+        all_ques = list()
+        for qp in qp_objs:
+            all_ques.append(qp.question)
+
+        questions = list()
+        for ques in all_ques:
+            serializer = GetQuestionSerializer(instance=ques)
+            keyword_obj = Keyword.objects.filter(question=ques)
+            keyword_ser = KeywordSerializer(
+                instance=keyword_obj, many=True)
+
+            if serializer.data['type'] != 'd':
+                opt_obj = Option.objects.filter(question=ques)
+                opt_ser = OptionSerializer(instance=opt_obj, many=True)
+                upvote = Vote.objects.filter(question=ques, vote=1).count()
+                downvote = Vote.objects.filter(question=ques, vote=0).count()
+                questions.append({
+                    'id': ques.id,
+                    'upvote': upvote,
+                    'downvote': downvote,
+                    'question_data': serializer.data,
+                    'keyword_data': keyword_ser.data,
+                    'option_data': opt_ser.data,
+                })
+            else:
+                match_obj = Match.objects.filter(question=ques)
+                match_ser = MatchSerializer(instance=match_obj, many=True)
+                upvote = Vote.objects.filter(question=ques, vote=1).count()
+                downvote = Vote.objects.filter(question=ques, vote=0).count()
+                questions.append({
+                    'id': ques.id,
+                    'upvote': upvote,
+                    'downvote': downvote,
+                    'question_data': serializer.data,
+                    'keyword_data': keyword_ser.data,
+                    'match_data': match_ser.data,
+                })
+        
+        return Response(questions, status=status.HTTP_200_OK)

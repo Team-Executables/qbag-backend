@@ -329,3 +329,27 @@ class PaperView(generics.GenericAPIView):
         return Response({
             "message": "Question Paper Not Created"
         }, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Get All Papers View
+class GetAllPaperView(generics.GenericAPIView):
+    permission_classes = (IsTeacher, )
+    serializer_class = PaperSerializer
+
+    def get(self, request):
+        all_papers = Paper.objects.filter(teacher=request.user.teacher.id)
+        data = {"value": []}
+        for paper in all_papers:
+            temp_obj = {"name": paper.name}
+            all_questions = paper.questionpaper_set.all()
+            temp_obj["board"] = all_questions[0].question.board
+            temp_obj["grade"] = all_questions[0].question.grade
+            # temp_obj["export_date"] = all_questions.export_date
+            marks = 0; num_questions = 0
+            for q in all_questions:
+                marks += q.question.marks; num_questions+=1
+            temp_obj["total_marks"] = marks
+            temp_obj["num_questions"] = num_questions
+            data["value"].append(temp_obj)
+        print(data)
+        return Response(data, status=status.HTTP_200_OK)

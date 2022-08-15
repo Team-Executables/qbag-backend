@@ -344,7 +344,7 @@ class GetAllPaperView(generics.GenericAPIView):
             all_questions = paper.questionpaper_set.all()
             temp_obj["board"] = all_questions[0].question.board
             temp_obj["grade"] = all_questions[0].question.grade
-            # temp_obj["export_date"] = all_questions.export_date
+            temp_obj["export_date"] = paper.export_date
             marks = 0; num_questions = 0
             for q in all_questions:
                 marks += q.question.marks; num_questions+=1

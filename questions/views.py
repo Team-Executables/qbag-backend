@@ -365,6 +365,7 @@ class GetAllPaperView(generics.GenericAPIView):
         all_papers = Paper.objects.filter(teacher=request.user.teacher.id)
         data = {"papers": []}
         for paper in all_papers:
+            temp_obj["id"] = paper.pk
             temp_obj = {"name": paper.name}
             all_questions = paper.questionpaper_set.all()
             temp_obj["board"] = all_questions[0].question.board

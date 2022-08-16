@@ -1,5 +1,6 @@
 from re import T
 from turtle import title
+import math
 from django.shortcuts import render
 from numpy import tensordot
 from rest_framework import generics, status, views, permissions
@@ -144,13 +145,17 @@ class RetreiveQuestionView(generics.GenericAPIView):
         data = request.data
         all_ques = list()
 
+        num_easy = math.ceil(int(data.get('easy')) * 1.33)
+        num_medium = math.ceil(int(data.get('medium')) * 1.33)
+        num_hard = math.ceil(int(data.get('hard')) * 1.33)
+
         easy_ques = Question.objects.filter(
             difficulty='a',
             board=data.get('board'),
             medium=data.get('langMedium'),
             subject=data.get('subject'),
             grade=data.get('grade')
-        )[:int(data.get('easy'))]
+        )[:num_easy]
         all_ques.append(easy_ques)
 
         medium_ques = Question.objects.filter(
@@ -159,7 +164,7 @@ class RetreiveQuestionView(generics.GenericAPIView):
             medium=data.get('langMedium'),
             subject=data.get('subject'),
             grade=data.get('grade')
-        )[:int(data.get('medium'))]
+        )[:num_medium]
         all_ques.append(medium_ques)
 
         hard_ques = Question.objects.filter(
@@ -168,7 +173,7 @@ class RetreiveQuestionView(generics.GenericAPIView):
             medium=data.get('langMedium'),
             subject=data.get('subject'),
             grade=data.get('grade')
-        )[:int(data.get('hard'))]
+        )[:num_hard]
         all_ques.append(hard_ques)
 
         questions = list()

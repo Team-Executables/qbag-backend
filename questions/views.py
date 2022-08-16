@@ -20,6 +20,7 @@ with open('./questions/saved_model.pickle', 'rb') as handle:
     new_model = pickle.load(handle)
 
 
+
 class createQuestionsView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = QuestionSerializer
@@ -95,6 +96,8 @@ class createQuestionsView(generics.GenericAPIView):
         }, status=status.HTTP_201_CREATED)
 
 
+
+
 class GetQuestionView(generics.GenericAPIView):
     permission_classes = (IsTeacher,)
     serializer_class = GetQuestionSerializer
@@ -129,6 +132,8 @@ class GetQuestionView(generics.GenericAPIView):
             }
 
         return Response(data, status=status.HTTP_200_OK)
+
+
 
 
 class RetreiveQuestionView(generics.GenericAPIView):
@@ -205,6 +210,8 @@ class RetreiveQuestionView(generics.GenericAPIView):
         return Response(questions, status=status.HTTP_200_OK)
 
 
+
+
 class GetSimilarQuestions(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = GetQuestionSerializer
@@ -238,6 +245,8 @@ class GetSimilarQuestions(generics.GenericAPIView):
         # print(tensor_list)
 
         return Response(objs_ser, status=status.HTTP_200_OK)
+
+
 
 
 # Voting Views
@@ -290,6 +299,8 @@ class VotingView(generics.GenericAPIView):
         }, status=status.HTTP_201_CREATED)
         
 
+
+
 # Create Question Paper View
 class PaperView(generics.GenericAPIView):
     permission_classes = (IsTeacher, )
@@ -300,6 +311,13 @@ class PaperView(generics.GenericAPIView):
         name = data['name']
         questions_list = data['questions']
         teacher = request.user.teacher.id
+
+
+        if len(questions_list) == 0 :
+            return Response({
+            "message": "Paper creation requires atleast 1 question"
+        }, status=status.HTTP_400_BAD_REQUEST)
+
         
         paper = {
             'teacher': teacher,
@@ -331,6 +349,8 @@ class PaperView(generics.GenericAPIView):
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
+
+
 # Get All Papers View
 class GetAllPaperView(generics.GenericAPIView):
     permission_classes = (IsTeacher, )
@@ -338,7 +358,7 @@ class GetAllPaperView(generics.GenericAPIView):
 
     def get(self, request):
         all_papers = Paper.objects.filter(teacher=request.user.teacher.id)
-        data = {"value": []}
+        data = {"papers": []}
         for paper in all_papers:
             temp_obj = {"name": paper.name}
             all_questions = paper.questionpaper_set.all()
@@ -350,16 +370,18 @@ class GetAllPaperView(generics.GenericAPIView):
                 marks += q.question.marks; num_questions+=1
             temp_obj["total_marks"] = marks
             temp_obj["num_questions"] = num_questions
-            data["value"].append(temp_obj)
+            data["papers"].append(temp_obj)
         return Response(data, status=status.HTTP_200_OK)
+
+
+
 
 # Get All Questions from a Paper
 class GetQuestionFromPaperView(generics.GenericAPIView):
     permission_classes = (IsTeacher,)
     serializer_class = GetQuestionSerializer
 
-    def post(self, request):
-        paper_id = request.data["paper_id"]
+    def get(self, request, paper_id):
         
         if request.user.teacher.id != Paper.objects.get(id=paper_id).teacher.id:
             return Response(

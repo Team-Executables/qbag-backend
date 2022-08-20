@@ -114,14 +114,16 @@ class GetQuestionView(generics.GenericAPIView):
         serializer = GetQuestionSerializer(instance=ques)
         keyword_obj = Keyword.objects.filter(question=ques)
         keyword_ser = KeywordSerializer(instance=keyword_obj, many=True)
-
+        votes = Vote.objects.filter(question_id=ques_id).count()
+        
         if serializer.data['type'] != 'd':
             opt_obj = Option.objects.filter(question=ques)
             opt_ser = OptionSerializer(instance=opt_obj, many=True)
             data = {
                 'question_data': serializer.data,
                 'keyword_data': keyword_ser.data,
-                'option_data': opt_ser.data
+                'option_data': opt_ser.data,
+                'total_votes': votes
             }
         else:
             match_obj = Match.objects.filter(question=ques)
@@ -129,7 +131,8 @@ class GetQuestionView(generics.GenericAPIView):
             data = {
                 'question_data': serializer.data,
                 'keyword_data': keyword_ser.data,
-                'match_data': match_ser.data
+                'match_data': match_ser.data,
+                'total_votes': votes
             }
 
         return Response(data, status=status.HTTP_200_OK)
@@ -364,6 +367,7 @@ class GetAllPaperView(generics.GenericAPIView):
     def get(self, request):
         all_papers = Paper.objects.filter(teacher=request.user.teacher.id)
         data = {"papers": []}
+        temp_obj = {}
         for paper in all_papers:
             temp_obj["id"] = paper.pk
             temp_obj = {"name": paper.name}

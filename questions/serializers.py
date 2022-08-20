@@ -31,7 +31,7 @@ class GetQuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ['type', 'setter', 'grade', 'board', 'marks', 'difficulty', 'subject', 'title', 'setbyTeacher']
+        fields = ['type', 'setter', 'grade', 'board', 'marks', 'difficulty', 'subject', 'title', 'setbyTeacher', 'id']
         
 
 class PaperSerializer(serializers.ModelSerializer):

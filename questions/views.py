@@ -369,7 +369,6 @@ class GetAllPaperView(generics.GenericAPIView):
         data = {"papers": []}
         temp_obj = {}
         for paper in all_papers:
-            temp_obj["id"] = paper.pk
             temp_obj = {"name": paper.name}
             all_questions = paper.questionpaper_set.all()
             temp_obj["board"] = all_questions[0].question.board
@@ -380,6 +379,7 @@ class GetAllPaperView(generics.GenericAPIView):
                 marks += q.question.marks; num_questions+=1
             temp_obj["total_marks"] = marks
             temp_obj["num_questions"] = num_questions
+            temp_obj["id"] = paper.id
             data["papers"].append(temp_obj)
         return Response(data, status=status.HTTP_200_OK)
 

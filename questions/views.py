@@ -503,20 +503,21 @@ class BulkUploadView(generics.GenericAPIView):
                         if serializer.is_valid(raise_exception=True):
                             question = serializer.save()
 
-                            # for keyword in keywords:
-                            #     Keyword.objects.create(question=question, keyword=keyword)
+                            for keyword in row["keywords"].split(";"):
+                                Keyword.objects.create(question=question, keyword=keyword)
 
                             if question.type == "a":
                                 for i in range(1,5):
                                     if row[f"option{i}"]:
                                         Option.objects.create(question=question,option=row[f"option{i}"],correct=row[f"correct{i}"])
                             elif question.type != "d":
-                                Option.objects.create(question=question,option=row[f"option1"],correct=row[f"correct1"])
+                                Option.objects.create(question=question,option=row[f"option1"],correct=1)
                             else:
                                 print("We don't do match the following")
                     except Exception:
                         import traceback
                         traceback.print_exc()
+                        break
 
 
                 '''

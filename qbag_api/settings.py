@@ -98,9 +98,19 @@ WSGI_APPLICATION = 'qbag_api.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'Host': config('HOST'),
+        'Database': config('DATABASE'),
+        'User': config('USER'),
+        'Port': config('PORT'),
+        'Database': config('DATABASE'),
+        'Password': config('PASSWORD'),
+        'URI': config('URI'),
+        'Heroku CLI': config('CLI')
     }
 }
 

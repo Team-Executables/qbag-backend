@@ -273,6 +273,9 @@ class VotingView(generics.GenericAPIView):
         vote_data['teacher'] = request.user.teacher.id
         vote_data['vote'] = data.get('vote')
         vote_data['question'] = data.get('question')
+        
+        if vote_data['vote'] == 0:
+            vote_data['reason'] = data.get('reason')
 
         question = Question.objects.get(id=vote_data['question'])
         if int(question.setter.id) == int(request.user.id):

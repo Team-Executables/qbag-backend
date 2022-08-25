@@ -52,6 +52,7 @@ class Vote(models.Model):
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     vote = models.IntegerField()
+    reason = models.TextField(max_length=500, null=True, blank=True)
     
     def __str__(self):
         return f"{self.question}, {self.teacher}: {self.vote}"

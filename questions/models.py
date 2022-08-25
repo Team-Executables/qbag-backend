@@ -76,9 +76,5 @@ class QuestionPaper(models.Model):
         return f"{self.paper.name} - {self.question}"
 
 class File(models.Model):
-    # name  = models.CharField(max_length=100)
     file = models.FileField(blank=False, null=False)
     timestamp = models.DateTimeField(auto_now_add=True)
-
-    # def __str__(self):
-    #     return f"{self.name}-{self.timestamp}"

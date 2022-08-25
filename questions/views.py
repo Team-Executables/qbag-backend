@@ -1,15 +1,9 @@
 from re import T
-from turtle import title
 import math
-from django.shortcuts import render
-from numpy import tensordot
 from rest_framework import generics, status, views, permissions
 from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q
-import os
 from django.conf import settings
-from datetime import datetime
 from qbag_api.permissions import IsTeacher, IsOther
 from .models import *
 from .serializers import *
@@ -18,6 +12,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 from operator import itemgetter
 from pathlib import Path
 import csv
+import os
+import traceback
 
 with open('./questions/saved_model.pickle', 'rb') as handle:
     new_model = pickle.load(handle)
@@ -448,6 +444,7 @@ class GetQuestionFromPaperView(generics.GenericAPIView):
         
         return Response(questions, status=status.HTTP_200_OK)
 
+# Bulk Upload Questions from CSV File
 class BulkUploadView(generics.GenericAPIView):
     serializer_class = QuestionSerializer
 
@@ -458,7 +455,7 @@ class BulkUploadView(generics.GenericAPIView):
             serializer = FileSerializer(data=request.data)
             
             if serializer.is_valid(raise_exception=True):
-                serializer.save()
+                file_obj = serializer.save()
 
                 record = File.objects.latest('timestamp')
                 filename = str(record.file)
@@ -468,8 +465,6 @@ class BulkUploadView(generics.GenericAPIView):
                 with open(file_to_read, encoding = 'utf-8') as csv_file_handler:
                     csv_reader = csv.DictReader(csv_file_handler)
                     file_data_rows = [rows for rows in csv_reader]
-                
-                # print(fin)
                 
                 data = request.data
                 qgrade = data.get('grade')
@@ -515,75 +510,15 @@ class BulkUploadView(generics.GenericAPIView):
                             else:
                                 print("We don't do match the following")
                     except Exception:
-                        import traceback
                         traceback.print_exc()
-                        break
-
-
-                '''
-                question_data = {}
-                question_data['type'] = data.get('type')
-                question_data['setter'] = request.user.pk
-                question_data['grade'] = data.get('grade')
-                question_data['board'] = data.get('board')
-                question_data['marks'] = data.get('marks')
-                question_data['difficulty'] = data.get('difficulty')
-                question_data['subject'] = data.get('subject')
-                question_data['title'] = data.get('title')
-                question_data['medium'] = data.get('medium')
-
-                keywords = data.get('keywords')
-
-                serializer = self.serializer_class(data=question_data)
-                if serializer.is_valid(raise_exception=True):
-                    if question_data['type'] != "d":
-                        ques_objs = Question.objects.filter(
-                            type=question_data['type'], grade=question_data['grade'], board=question_data['board'], subject=question_data['subject'], medium=question_data['medium'])
-                        tensor_list = []
-                        for i in ques_objs:
-                            tensor_list.append(new_model.encode(
-                                [i.title], convert_to_tensor=True))
-                        encoded_sent = new_model.encode(
-                            [question_data['title']], convert_to_tensor=True)
-
-                        for i, val in enumerate(tensor_list):
-                            if cosine_similarity(encoded_sent, val) > .80:
-                                similar_data = QuestionSerializer(
-                                    instance=ques_objs[i])
-                                return Response({
-                                    'message': 'Similar question already exists',
-                                    'similar_question_data': similar_data.data
-                                }, status=status.HTTP_409_CONFLICT)
-
-                        # embed2 = new_model.encode(sent2, convert_to_tensor=True)
-                        question = serializer.save()
-                    else:
-                        question = serializer.save()
-
-                for keyword in keywords:
-                    Keyword.objects.create(
-                        question=question,
-                        keyword=keyword
-                    )
-
-                if question_data['type'] != "d":
-                    options = data.get("options")
-                    for option in options:
-                        Option.objects.create(
-                            question=question,
-                            option=option['option'],
-                            correct=option['correct']
-                        )
-                else:
-                    match_pairs = data.get("match")
-                    for pair in match_pairs:
-                        Match.objects.create(
-                            question=question,
-                            key=pair['key'],
-                            value=pair['value']
-                        )
-                '''
-
+                        return Response({"message": "file corrupted"}, status=status.HTTP_404_NOT_FOUND)
+                    
+                if os.path.exists(file_to_read):
+                    print(file_to_read)
+                    os.remove(file_to_read)
+                    print("Removed")
+                    file_obj.delete()
+                
                 return Response({"message": "done"}, status=status.HTTP_200_OK)
             else:
                 return Response({"message": "file corrupted"}, status=status.HTTP_404_NOT_FOUND)

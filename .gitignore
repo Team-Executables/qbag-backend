@@ -14,3 +14,4 @@ env.bak/
 venv.bak/
 
 questions/saved_model.pickle
+whole.json

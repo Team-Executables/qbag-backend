@@ -259,6 +259,50 @@ class GetSimilarQuestions(generics.GenericAPIView):
         return Response(objs_ser, status=status.HTTP_200_OK)
 
 
+# Get All Questions of a Teacher
+class GetAllMyQuestionsView(generics.GenericAPIView):
+    permission_classes = (IsTeacher,)
+    serializer_class = GetQuestionSerializer
+
+    def post(self, request):
+        all_ques = Question.objects.filter(setter=request.user.id)
+
+        questions = []
+        for ques in all_ques:
+            serializer = GetQuestionSerializer(instance=ques)
+            keyword_obj = Keyword.objects.filter(question=ques)
+            keyword_ser = KeywordSerializer(
+                instance=keyword_obj, many=True)
+
+            if serializer.data['type'] != 'd':
+                opt_obj = Option.objects.filter(question=ques)
+                opt_ser = OptionSerializer(instance=opt_obj, many=True)
+                upvote = Vote.objects.filter(question=ques, vote=1).count()
+                downvote = Vote.objects.filter(question=ques, vote=0).count()
+                questions.append({
+                    'id': ques.id,
+                    'upvote': upvote,
+                    'downvote': downvote,
+                    'question_data': serializer.data,
+                    'keyword_data': keyword_ser.data,
+                    'option_data': opt_ser.data,
+                })
+            else:
+                match_obj = Match.objects.filter(question=ques)
+                match_ser = MatchSerializer(instance=match_obj, many=True)
+                upvote = Vote.objects.filter(question=ques, vote=1).count()
+                downvote = Vote.objects.filter(question=ques, vote=0).count()
+                questions.append({
+                    'id': ques.id,
+                    'upvote': upvote,
+                    'downvote': downvote,
+                    'question_data': serializer.data,
+                    'keyword_data': keyword_ser.data,
+                    'match_data': match_ser.data,
+                })
+        return Response(questions, status=status.HTTP_200_OK)
+
+
 
 
 # Voting Views

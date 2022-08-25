@@ -14,6 +14,8 @@ from pathlib import Path
 from decouple import config
 import os
 import datetime
+import dj_database_url
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -97,22 +99,9 @@ WSGI_APPLICATION = 'qbag_api.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
-    'default': {
-        'Host': config('HOST'),
-        'Database': config('DATABASE'),
-        'User': config('USER'),
-        'Port': config('PORT'),
-        'Database': config('DATABASE'),
-        'Password': config('PASSWORD'),
-        'URI': config('URI'),
-        'Heroku CLI': config('CLI')
-    }
-}
+DATABASES = {}
+
+DATABASES['default'] = dj_database_url.config()
 
 # authentication settings
 

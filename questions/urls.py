@@ -25,5 +25,6 @@ urlpatterns = [
     path('create-paper', PaperView.as_view(), name="create-paper"),
     path('all-papers', GetAllPaperView.as_view(), name="all-papers"),
     path('questions-from-paper/<int:paper_id>', GetQuestionFromPaperView.as_view(), name="questions-from-paper"),
-    path("bulkupload", BulkUploadView.as_view(), name="bulkupload")
+    path("bulkupload", BulkUploadView.as_view(), name="bulkupload"),
+    path("getallmyquestions", GetAllMyQuestionsView.as_view(), name="getallmyquestions"),
 ]

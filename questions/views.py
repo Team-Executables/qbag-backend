@@ -115,6 +115,8 @@ class GetQuestionView(generics.GenericAPIView):
         keyword_obj = Keyword.objects.filter(question=ques)
         keyword_ser = KeywordSerializer(instance=keyword_obj, many=True)
         votes = Vote.objects.filter(question_id=ques_id).count()
+        upvote = Vote.objects.filter(question_id=ques_id, vote=1).count()
+        downvote = Vote.objects.filter(question_id=ques_id, vote=0).count()
         
         if serializer.data['type'] != 'd':
             opt_obj = Option.objects.filter(question=ques)
@@ -123,7 +125,9 @@ class GetQuestionView(generics.GenericAPIView):
                 'question_data': serializer.data,
                 'keyword_data': keyword_ser.data,
                 'option_data': opt_ser.data,
-                'total_votes': votes
+                'total_votes': votes,
+                'upvote': upvote,
+                'downvote': downvote
             }
         else:
             match_obj = Match.objects.filter(question=ques)
@@ -132,7 +136,9 @@ class GetQuestionView(generics.GenericAPIView):
                 'question_data': serializer.data,
                 'keyword_data': keyword_ser.data,
                 'match_data': match_ser.data,
-                'total_votes': votes
+                'total_votes': votes,
+                'upvote': upvote,
+                'downvote': downvote
             }
 
         return Response(data, status=status.HTTP_200_OK)

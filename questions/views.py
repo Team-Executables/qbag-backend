@@ -256,6 +256,7 @@ class GetSimilarQuestions(generics.GenericAPIView):
         # print(tensor_list)
 
         return Response(objs_ser, status=status.HTTP_200_OK)
+        
 '''
 
 

@@ -14,6 +14,8 @@ from pathlib import Path
 import csv
 import os
 import traceback
+import random
+
 
 with open('./questions/saved_model.pickle', 'rb') as handle:
     new_model = pickle.load(handle)
@@ -197,13 +199,15 @@ class RetreiveQuestionView(generics.GenericAPIView):
                     opt_ser = OptionSerializer(instance=opt_obj, many=True)
                     upvote = Vote.objects.filter(question=ques, vote=1).count()
                     downvote = Vote.objects.filter(question=ques, vote=0).count()
+                    options = opt_ser.data
+                    random.shuffle(options)
                     questions.append({
                         'id': ques.id,
                         'upvote': upvote,
                         'downvote': downvote,
                         'question_data': serializer.data,
                         'keyword_data': keyword_ser.data,
-                        'option_data': opt_ser.data,
+                        'option_data': options,
                     })
                 else:
                     match_obj = Match.objects.filter(question=ques)
@@ -279,13 +283,15 @@ class GetAllMyQuestionsView(generics.GenericAPIView):
                 opt_ser = OptionSerializer(instance=opt_obj, many=True)
                 upvote = Vote.objects.filter(question=ques, vote=1).count()
                 downvote = Vote.objects.filter(question=ques, vote=0).count()
+                options = opt_ser.data
+                random.shuffle(options)
                 questions.append({
                     'id': ques.id,
                     'upvote': upvote,
                     'downvote': downvote,
                     'question_data': serializer.data,
                     'keyword_data': keyword_ser.data,
-                    'option_data': opt_ser.data,
+                    'option_data': options,
                 })
             else:
                 match_obj = Match.objects.filter(question=ques)
@@ -317,9 +323,7 @@ class VotingView(generics.GenericAPIView):
         vote_data['teacher'] = request.user.teacher.id
         vote_data['vote'] = data.get('vote')
         vote_data['question'] = data.get('question')
-        
-        if vote_data['vote'] == 0:
-            vote_data['reason'] = data.get('reason')
+        vote_data['reason'] = data.get('reason')
 
         question = Question.objects.get(id=vote_data['question'])
         if int(question.setter.id) == int(request.user.id):
@@ -333,7 +337,7 @@ class VotingView(generics.GenericAPIView):
                 return Response({
                     "message": "You have already voted",
                 }, status=status.HTTP_401_UNAUTHORIZED)
-            Vote.objects.filter(teacher=vote_data['teacher'], question=vote_data['question']).update(vote=vote_data['vote'])
+            Vote.objects.filter(teacher=vote_data['teacher'], question=vote_data['question']).update(vote=vote_data['vote'], reason=vote_data['reason'])
         else:
             serializer = self.serializer_class(data=vote_data)
             if serializer.is_valid(raise_exception=True):

@@ -78,3 +78,12 @@ class QuestionPaper(models.Model):
 class File(models.Model):
     file = models.FileField(blank=False, null=False)
     timestamp = models.DateTimeField(auto_now_add=True)
+
+
+class URLTemplate(models.Model):
+    setter = models.ForeignKey(User, on_delete=models.CASCADE)
+    template_string = models.CharField(max_length=200)
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return f"{self.setter} - {self.name}"

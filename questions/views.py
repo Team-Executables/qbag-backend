@@ -566,3 +566,21 @@ class BulkUploadView(generics.GenericAPIView):
                 return Response({"message": "done"}, status=status.HTTP_200_OK)
             else:
                 return Response({"message": "file corrupted"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class URLTemplateView(generics.GenericAPIView):
+    serializer_class = TemplateSerializer
+
+    def post(self, request):
+        data = {}
+        data['setter'] = request.user.pk
+        data['template_string'] = request.data.get('template_string')
+        data['name'] = request.data.get('name')
+        serializer = self.serializer_class(data=data)
+        if serializer.is_valid(raise_exception=True):
+            question = serializer.save()
+
+        return Response(
+            {"message": "done"},
+            status=status.HTTP_200_OK
+        )

@@ -11,7 +11,8 @@ from .models import (
     Match,
     Keyword,
     QuestionPaper,
-    Vote
+    Vote,
+    URLTemplate
 )
 from .models import File
 
@@ -74,4 +75,10 @@ class VoteSerializer(serializers.ModelSerializer):
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = File
+        fields = '__all__'
+
+
+class TemplateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = URLTemplate
         fields = '__all__'

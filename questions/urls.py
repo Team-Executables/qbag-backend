@@ -27,4 +27,5 @@ urlpatterns = [
     path('questions-from-paper/<int:paper_id>', GetQuestionFromPaperView.as_view(), name="questions-from-paper"),
     path("bulkupload", BulkUploadView.as_view(), name="bulkupload"),
     path("getallmyquestions", GetAllMyQuestionsView.as_view(), name="getallmyquestions"),
+    path("save-url-template", URLTemplateView.as_view(), name="save-url-template")
 ]

@@ -7,7 +7,8 @@ from .models import (
     Match,
     Keyword,
     QuestionPaper,
-    Vote
+    Vote,
+    URLTemplate
 )
 
 # Register your models here.
@@ -19,3 +20,4 @@ admin.site.register(Vote)
 admin.site.register(Paper)
 admin.site.register(QuestionPaper)
 admin.site.register(File)
+admin.site.register(URLTemplate)

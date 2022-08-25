@@ -28,7 +28,10 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'qbag.netlify.app',
+    'qbag-backend.herokuapp.com',
+]
 
 AUTH_USER_MODEL = 'authentication.User'
 
@@ -64,7 +67,8 @@ MIDDLEWARE = [
 
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
+    'https://qbag.netlify.app',
+    'https://qbag-backend.herokuapp.com',
 ]
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'

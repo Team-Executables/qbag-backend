@@ -16,6 +16,10 @@ from .serializers import *
 import pickle
 from sklearn.metrics.pairwise import cosine_similarity
 from operator import itemgetter
+from pathlib import Path
+import csv
+from rest_framework.parsers import FileUploadParser
+from rest_framework.views import APIView
 
 with open('./questions/saved_model.pickle', 'rb') as handle:
     new_model = pickle.load(handle)
@@ -445,3 +449,41 @@ class GetQuestionFromPaperView(generics.GenericAPIView):
                 })
         
         return Response(questions, status=status.HTTP_200_OK)
+
+class BulkUploadView(generics.GenericAPIView):
+
+    def post(self, request):
+        if 'file' not in request.data:
+            return Response({"message": "file not found"}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            serializer = FileSerializer(data=request.data)
+            
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+
+                record = File.objects.latest('timestamp')
+                filename = str(record.file)
+                bulk_upload_csv = Path(settings.MEDIA_ROOT)
+                file_to_read = bulk_upload_csv / filename
+
+                with open(file_to_read, encoding = 'utf-8') as csv_file_handler:
+                    csv_reader = csv.DictReader(csv_file_handler)
+                    fin = [rows for rows in csv_reader]
+                
+                print(fin)
+                return Response({"message": "done"}, status=status.HTTP_200_OK)
+            else:
+                return Response({"message": "file corrupted"}, status=status.HTTP_404_NOT_FOUND)
+
+class MyUploadView(APIView):
+    parser_class = (FileUploadParser,)
+
+    def put(self, request, format=None):
+        if 'file' not in request.data:
+            return Response({"message": "no file found"}, status=status.HTTP_404_NOT_FOUND)
+        print("###")
+
+        f = request.data['file']
+
+        File.file.save(f.name, f, save=True)
+        return Response(status=status.HTTP_201_CREATED)

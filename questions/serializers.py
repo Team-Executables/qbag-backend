@@ -13,6 +13,7 @@ from .models import (
     QuestionPaper,
     Vote
 )
+from .models import File
 
 
 class QuestionSerializer(serializers.ModelSerializer):
@@ -69,3 +70,8 @@ class VoteSerializer(serializers.ModelSerializer):
         model = Vote
         fields = "__all__"
 
+
+class FileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = File
+        fields = '__all__'

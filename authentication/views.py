@@ -1,5 +1,4 @@
 #General imports
-from turtle import position
 from django.shortcuts import render
 from rest_framework import generics, status, views, permissions
 from rest_framework.response import Response

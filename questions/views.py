@@ -121,10 +121,12 @@ class GetQuestionView(generics.GenericAPIView):
         if serializer.data['type'] != 'd':
             opt_obj = Option.objects.filter(question=ques)
             opt_ser = OptionSerializer(instance=opt_obj, many=True)
+            options = opt_ser.data
+            random.shuffle(options)
             data = {
                 'question_data': serializer.data,
                 'keyword_data': keyword_ser.data,
-                'option_data': opt_ser.data,
+                'option_data': options,
                 'total_votes': votes,
                 'upvote': upvote,
                 'downvote': downvote
@@ -469,6 +471,9 @@ class GetQuestionFromPaperView(generics.GenericAPIView):
             if serializer.data['type'] != 'd':
                 opt_obj = Option.objects.filter(question=ques)
                 opt_ser = OptionSerializer(instance=opt_obj, many=True)
+                options = opt_ser.data
+                random.shuffle(options)
+
                 upvote = Vote.objects.filter(question=ques, vote=1).count()
                 downvote = Vote.objects.filter(question=ques, vote=0).count()
                 questions.append({
@@ -477,7 +482,7 @@ class GetQuestionFromPaperView(generics.GenericAPIView):
                     'downvote': downvote,
                     'question_data': serializer.data,
                     'keyword_data': keyword_ser.data,
-                    'option_data': opt_ser.data,
+                    'option_data': options,
                 })
             else:
                 match_obj = Match.objects.filter(question=ques)

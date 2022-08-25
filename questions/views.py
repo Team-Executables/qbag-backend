@@ -587,3 +587,14 @@ class URLTemplateView(generics.GenericAPIView):
             {"message": "done"},
             status=status.HTTP_200_OK
         )
+
+class GetURLTemplateView(generics.GenericAPIView):
+    serializer_class = TemplateSerializer
+
+    def get(self, request, user_id):
+        objs = URLTemplate.objects.filter(setter=user_id)
+        serializer = TemplateSerializer(instance=objs, many=True)
+
+        return Response({
+            'saved_url_templates': serializer.data
+        },status=status.HTTP_200_OK) 

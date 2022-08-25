@@ -10,7 +10,7 @@ _Question Bank Generator uses a crowd sourcing model to prepare question banks f
 <br/>
 **Link to frontend repo:** [https://github.com/Team-Executables/qbag-frontend](https://github.com/Team-Executables/qbag-frontend)
 <br/>
-**Link to project presentation:** [https://github.com/Team-Executables/qbag-frontend/blob/main/Question%20Bank%20Generator.pdf)](https://github.com/Team-Executables/qbag-frontend/blob/main/Question%20Bank%20Generator.pdf)
+**Link to project presentation:** [https://github.com/Team-Executables/qbag-frontend/blob/main/Question%20Bank%20Generator.pdf](https://github.com/Team-Executables/qbag-frontend/blob/main/Question%20Bank%20Generator.pdf)
 
 
 ### Tech Stack ###

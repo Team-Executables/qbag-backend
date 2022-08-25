@@ -3,6 +3,7 @@ certifi==2021.10.8
 charset-normalizer==2.0.12
 click==8.0.4
 colorama==0.4.4
+dj-database-url==1.0.0
 Django==4.0.3
 django-cors-headers==3.11.0
 djangorestframework==3.13.1

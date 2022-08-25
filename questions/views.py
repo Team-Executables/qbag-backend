@@ -18,8 +18,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 from operator import itemgetter
 from pathlib import Path
 import csv
-from rest_framework.parsers import FileUploadParser
-from rest_framework.views import APIView
 
 with open('./questions/saved_model.pickle', 'rb') as handle:
     new_model = pickle.load(handle)
@@ -451,6 +449,7 @@ class GetQuestionFromPaperView(generics.GenericAPIView):
         return Response(questions, status=status.HTTP_200_OK)
 
 class BulkUploadView(generics.GenericAPIView):
+    serializer_class = QuestionSerializer
 
     def post(self, request):
         if 'file' not in request.data:
@@ -468,22 +467,122 @@ class BulkUploadView(generics.GenericAPIView):
 
                 with open(file_to_read, encoding = 'utf-8') as csv_file_handler:
                     csv_reader = csv.DictReader(csv_file_handler)
-                    fin = [rows for rows in csv_reader]
+                    file_data_rows = [rows for rows in csv_reader]
                 
-                print(fin)
+                # print(fin)
+                
+                data = request.data
+                qgrade = data.get('grade')
+                qboard = data.get('board')
+                qmedium = data.get('medium')
+                qsubject = data.get('subject')
+
+                for row in file_data_rows:
+
+                    question_data = {}
+                    question_data["type"] = row["type"]
+                    question_data['setter'] = request.user.id
+                    question_data["grade"] = qgrade
+                    question_data["board"] = qboard
+                    question_data["marks"] = row["marks"]
+                    # question_data["difficulty"] = row["difficulty"]
+                    question_data["subject"] = qsubject
+                    question_data["title"] = row["title"]
+                    question_data["medium"] = qmedium
+
+                    if row["difficulty"].lower() == "easy":
+                        question_data["difficulty"] = "a"
+                    elif row["difficulty"].lower() == "medium":
+                        question_data["difficulty"] = "b"
+                    else:
+                        question_data["difficulty"] = "c"
+                
+                    serializer = self.serializer_class(data=question_data)
+
+                    try:
+                        if serializer.is_valid(raise_exception=True):
+                            question = serializer.save()
+
+                            # for keyword in keywords:
+                            #     Keyword.objects.create(question=question, keyword=keyword)
+
+                            if question.type == "a":
+                                for i in range(1,5):
+                                    if row[f"option{i}"]:
+                                        Option.objects.create(question=question,option=row[f"option{i}"],correct=row[f"correct{i}"])
+                            elif question.type != "d":
+                                Option.objects.create(question=question,option=row[f"option1"],correct=row[f"correct1"])
+                            else:
+                                print("We don't do match the following")
+                    except Exception:
+                        import traceback
+                        traceback.print_exc()
+
+
+                '''
+                question_data = {}
+                question_data['type'] = data.get('type')
+                question_data['setter'] = request.user.pk
+                question_data['grade'] = data.get('grade')
+                question_data['board'] = data.get('board')
+                question_data['marks'] = data.get('marks')
+                question_data['difficulty'] = data.get('difficulty')
+                question_data['subject'] = data.get('subject')
+                question_data['title'] = data.get('title')
+                question_data['medium'] = data.get('medium')
+
+                keywords = data.get('keywords')
+
+                serializer = self.serializer_class(data=question_data)
+                if serializer.is_valid(raise_exception=True):
+                    if question_data['type'] != "d":
+                        ques_objs = Question.objects.filter(
+                            type=question_data['type'], grade=question_data['grade'], board=question_data['board'], subject=question_data['subject'], medium=question_data['medium'])
+                        tensor_list = []
+                        for i in ques_objs:
+                            tensor_list.append(new_model.encode(
+                                [i.title], convert_to_tensor=True))
+                        encoded_sent = new_model.encode(
+                            [question_data['title']], convert_to_tensor=True)
+
+                        for i, val in enumerate(tensor_list):
+                            if cosine_similarity(encoded_sent, val) > .80:
+                                similar_data = QuestionSerializer(
+                                    instance=ques_objs[i])
+                                return Response({
+                                    'message': 'Similar question already exists',
+                                    'similar_question_data': similar_data.data
+                                }, status=status.HTTP_409_CONFLICT)
+
+                        # embed2 = new_model.encode(sent2, convert_to_tensor=True)
+                        question = serializer.save()
+                    else:
+                        question = serializer.save()
+
+                for keyword in keywords:
+                    Keyword.objects.create(
+                        question=question,
+                        keyword=keyword
+                    )
+
+                if question_data['type'] != "d":
+                    options = data.get("options")
+                    for option in options:
+                        Option.objects.create(
+                            question=question,
+                            option=option['option'],
+                            correct=option['correct']
+                        )
+                else:
+                    match_pairs = data.get("match")
+                    for pair in match_pairs:
+                        Match.objects.create(
+                            question=question,
+                            key=pair['key'],
+                            value=pair['value']
+                        )
+                '''
+
                 return Response({"message": "done"}, status=status.HTTP_200_OK)
             else:
                 return Response({"message": "file corrupted"}, status=status.HTTP_404_NOT_FOUND)
-
-class MyUploadView(APIView):
-    parser_class = (FileUploadParser,)
-
-    def put(self, request, format=None):
-        if 'file' not in request.data:
-            return Response({"message": "no file found"}, status=status.HTTP_404_NOT_FOUND)
-        print("###")
-
-        f = request.data['file']
-
-        File.file.save(f.name, f, save=True)
-        return Response(status=status.HTTP_201_CREATED)

@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import (
+    File,
     Paper,
     Question,
     Option,
@@ -17,3 +18,4 @@ admin.site.register(Match)
 admin.site.register(Vote)
 admin.site.register(Paper)
 admin.site.register(QuestionPaper)
+admin.site.register(File)

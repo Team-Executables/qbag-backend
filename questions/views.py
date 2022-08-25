@@ -1,5 +1,3 @@
-from re import T
-from turtle import title
 import math
 from django.shortcuts import render
 # from numpy import tensordot
@@ -256,7 +254,7 @@ class GetSimilarQuestions(generics.GenericAPIView):
         # print(tensor_list)
 
         return Response(objs_ser, status=status.HTTP_200_OK)
-        
+
 '''
 
 

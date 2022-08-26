@@ -8,7 +8,7 @@ from qbag_api.permissions import IsTeacher, IsOther
 from .models import *
 from .serializers import *
 import pickle
-from sklearn.metrics.pairwise import cosine_similarity
+# from sklearn.metrics.pairwise import cosine_similarity
 from operator import itemgetter
 from pathlib import Path
 import csv
@@ -18,8 +18,8 @@ import random
 from authentication.utils import Util
 
 
-with open('./questions/saved_model.pickle', 'rb') as handle:
-    new_model = pickle.load(handle)
+# with open('./questions/saved_model.pickle', 'rb') as handle:
+#     new_model = pickle.load(handle)
 
 
 
@@ -45,6 +45,7 @@ class createQuestionsView(generics.GenericAPIView):
 
         serializer = self.serializer_class(data=question_data)
         if serializer.is_valid(raise_exception=True):
+            '''
             if question_data['type'] != "d":
                 ques_objs = Question.objects.filter(
                     type=question_data['type'], grade=question_data['grade'], board=question_data['board'], subject=question_data['subject'], medium=question_data['medium'])
@@ -68,6 +69,8 @@ class createQuestionsView(generics.GenericAPIView):
                 question = serializer.save()
             else:
                 question = serializer.save()
+            '''
+            question = serializer.save()
 
         for keyword in keywords:
             Keyword.objects.create(
@@ -234,7 +237,7 @@ class RetreiveQuestionView(generics.GenericAPIView):
 
 
 
-
+'''
 class GetSimilarQuestions(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = GetQuestionSerializer
@@ -268,7 +271,7 @@ class GetSimilarQuestions(generics.GenericAPIView):
         # print(tensor_list)
 
         return Response(objs_ser, status=status.HTTP_200_OK)
-
+'''
 
 # Get All Questions of a Teacher
 class GetAllMyQuestionsView(generics.GenericAPIView):

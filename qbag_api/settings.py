@@ -30,6 +30,7 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    'qbag.netlify.app',,
     'qbag-backend2.herokuapp.com',
 ]
 
@@ -68,6 +69,7 @@ MIDDLEWARE = [
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 CORS_ALLOWED_ORIGINS = [
+    'qbag.netlify.app',
     'http://localhost:3000',
 ]
 

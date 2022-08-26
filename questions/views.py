@@ -599,12 +599,13 @@ class URLTemplateView(generics.GenericAPIView):
             status=status.HTTP_200_OK
         )
 
+
 class GetURLTemplateView(generics.GenericAPIView):
     serializer_class = TemplateSerializer
     permission_classes = (IsTeacher, )
 
-    def get(self, request, user_id):
-        objs = URLTemplate.objects.filter(setter=user_id)
+    def get(self, request):
+        objs = URLTemplate.objects.filter(setter=request.user.pk)
         serializer = TemplateSerializer(instance=objs, many=True)
 
         return Response({

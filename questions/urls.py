@@ -28,5 +28,5 @@ urlpatterns = [
     path("bulkupload", BulkUploadView.as_view(), name="bulkupload"),
     path("getallmyquestions", GetAllMyQuestionsView.as_view(), name="getallmyquestions"),
     path("save-url-template", URLTemplateView.as_view(), name="save-url-template"),
-    path("get-url-template/<int:user_id>", GetURLTemplateView.as_view(), name="get-url-template"),
+    path("get-url-template", GetURLTemplateView.as_view(), name="get-url-template"),
 ]

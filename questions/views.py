@@ -15,6 +15,7 @@ import csv
 import os
 import traceback
 import random
+from authentication.utils import Util
 
 
 with open('./questions/saved_model.pickle', 'rb') as handle:
@@ -347,7 +348,7 @@ class VotingView(generics.GenericAPIView):
 
         value = "Upvoted" if vote_data['vote'] == 1 else "Downvoted"
 
-        threshold = 200
+        threshold = 2
 
         if value == "Downvoted":
             total_votes = Vote.objects.filter(
@@ -358,10 +359,19 @@ class VotingView(generics.GenericAPIView):
 
             if total_votes > threshold and down_votes > total_votes / 2:
                 user = User.objects.get(id = request.user.pk)
-                print(user.email)
                 ques = Question.objects.get(id=vote_data['question'])
-                email_body = 'Hi '+ user.name + ',\nThe following question was deleted from our question bank as it was downvoted by the community:\n\nQuestion Details:\nGrade:' + str(ques.grade) + '\nBoard: ' + str(ques.board) + '\nMarks: ' + str(ques.marks) + '\n : ' + ques.subject + '\nMedium : ' + ques.medium + '\nTitle : ' + ques.title + '\n\n' + 'Few reasons why your question was removed:\n'
-                data = {'email_body': email_body, 'to_email': user.email, 'email_subject': 'Deletion of your question'}
+                reasons = ""
+                reasons_objs = Vote.objects.filter(question=ques)
+                if len(reasons_objs) > 5:
+                    reasons_objs = reasons_objs[:5]
+                for idx, reason_obj in enumerate(reasons_objs):
+                    reasons+=str(idx+1)
+                    reasons+=". "
+                    reasons+=reason_obj.reason
+                    reasons+="\n"
+                print(reasons)
+                email_body = 'Hi '+ ques.setter.name + ',\nThe following question was deleted from our question bank as it was downvoted by the community:\n\nQuestion Details:\nGrade:' + str(ques.grade) + '\nBoard: ' + str(ques.board) + '\nMarks: ' + str(ques.marks) + '\n :Subject ' + ques.subject + '\nMedium : ' + ques.medium + '\nTitle : ' + ques.title + '\n\n' + 'Few reasons why your question was removed:\n' + reasons
+                data = {'email_body': email_body, 'to_email': ques.setter.email, 'email_subject': 'Deletion of your question'}
 
                 Util.send_email(data)
 

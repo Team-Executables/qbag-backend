@@ -322,7 +322,7 @@ class VotingView(generics.GenericAPIView):
         data = request.data
 
         vote_data = {}
-        vote_data['teacher'] = request.user.teacher.id
+        vote_data['teacher'] = request.user.teacher.pk
         vote_data['vote'] = data.get('vote')
         vote_data['question'] = data.get('question')
         vote_data['reason'] = data.get('reason')
@@ -355,7 +355,16 @@ class VotingView(generics.GenericAPIView):
             down_votes = Vote.objects.filter(
                 question=vote_data['question'], vote=0).count()
 
+
             if total_votes > threshold and down_votes > total_votes / 2:
+                user = User.objects.get(id = request.user.pk)
+                print(user.email)
+                ques = Question.objects.get(id=vote_data['question'])
+                email_body = 'Hi '+ user.name + ',\nThe following question was deleted from our question bank as it was downvoted by the community:\n\nQuestion Details:\nGrade:' + str(ques.grade) + '\nBoard: ' + str(ques.board) + '\nMarks: ' + str(ques.marks) + '\n : ' + ques.subject + '\nMedium : ' + ques.medium + '\nTitle : ' + ques.title + '\n\n' + 'Few reasons why your question was removed:\n'
+                data = {'email_body': email_body, 'to_email': user.email, 'email_subject': 'Deletion of your question'}
+
+                Util.send_email(data)
+
                 Question.objects.filter(id=vote_data['question']).delete()
 
         return Response({

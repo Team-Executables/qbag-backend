@@ -503,6 +503,7 @@ class GetQuestionFromPaperView(generics.GenericAPIView):
 # Bulk Upload Questions from CSV File
 class BulkUploadView(generics.GenericAPIView):
     serializer_class = QuestionSerializer
+    permission_classes = (IsTeacher, )
 
     def post(self, request):
         if 'file' not in request.data:
@@ -582,6 +583,7 @@ class BulkUploadView(generics.GenericAPIView):
 
 class URLTemplateView(generics.GenericAPIView):
     serializer_class = TemplateSerializer
+    permission_classes = (IsTeacher, )
 
     def post(self, request):
         data = {}
@@ -599,6 +601,7 @@ class URLTemplateView(generics.GenericAPIView):
 
 class GetURLTemplateView(generics.GenericAPIView):
     serializer_class = TemplateSerializer
+    permission_classes = (IsTeacher, )
 
     def get(self, request, user_id):
         objs = URLTemplate.objects.filter(setter=user_id)

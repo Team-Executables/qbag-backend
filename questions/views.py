@@ -15,6 +15,7 @@ import csv
 import os
 import traceback
 import random
+from authentication.utils import Util
 
 
 with open('./questions/saved_model.pickle', 'rb') as handle:
@@ -322,7 +323,7 @@ class VotingView(generics.GenericAPIView):
         data = request.data
 
         vote_data = {}
-        vote_data['teacher'] = request.user.teacher.id
+        vote_data['teacher'] = request.user.teacher.pk
         vote_data['vote'] = data.get('vote')
         vote_data['question'] = data.get('question')
         vote_data['reason'] = data.get('reason')
@@ -347,7 +348,7 @@ class VotingView(generics.GenericAPIView):
 
         value = "Upvoted" if vote_data['vote'] == 1 else "Downvoted"
 
-        threshold = 200
+        threshold = 2
 
         if value == "Downvoted":
             total_votes = Vote.objects.filter(
@@ -355,7 +356,25 @@ class VotingView(generics.GenericAPIView):
             down_votes = Vote.objects.filter(
                 question=vote_data['question'], vote=0).count()
 
+
             if total_votes > threshold and down_votes > total_votes / 2:
+                user = User.objects.get(id = request.user.pk)
+                ques = Question.objects.get(id=vote_data['question'])
+                reasons = ""
+                reasons_objs = Vote.objects.filter(question=ques)
+                if len(reasons_objs) > 5:
+                    reasons_objs = reasons_objs[:5]
+                for idx, reason_obj in enumerate(reasons_objs):
+                    reasons+=str(idx+1)
+                    reasons+=". "
+                    reasons+=reason_obj.reason
+                    reasons+="\n"
+                print(reasons)
+                email_body = 'Hi '+ ques.setter.name + ',\nThe following question was deleted from our question bank as it was downvoted by the community:\n\nQuestion Details:\nGrade:' + str(ques.grade) + '\nBoard: ' + str(ques.board) + '\nMarks: ' + str(ques.marks) + '\n :Subject ' + ques.subject + '\nMedium : ' + ques.medium + '\nTitle : ' + ques.title + '\n\n' + 'Few reasons why your question was removed:\n' + reasons
+                data = {'email_body': email_body, 'to_email': ques.setter.email, 'email_subject': 'Deletion of your question'}
+
+                Util.send_email(data)
+
                 Question.objects.filter(id=vote_data['question']).delete()
 
         return Response({

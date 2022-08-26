@@ -428,16 +428,22 @@ class GetAllPaperView(generics.GenericAPIView):
         for paper in all_papers:
             temp_obj = {"name": paper.name}
             all_questions = paper.questionpaper_set.all()
-            temp_obj["board"] = all_questions[0].question.board
-            temp_obj["grade"] = all_questions[0].question.grade
-            temp_obj["export_date"] = paper.export_date
-            marks = 0; num_questions = 0
-            for q in all_questions:
-                marks += q.question.marks; num_questions+=1
-            temp_obj["total_marks"] = marks
-            temp_obj["num_questions"] = num_questions
-            temp_obj["id"] = paper.id
+            try:
+                temp_obj["board"] = all_questions[0].question.board
+                temp_obj["grade"] = all_questions[0].question.grade
+                temp_obj["export_date"] = paper.export_date
+                marks = 0; num_questions = 0
+                for q in all_questions:
+                    marks += q.question.marks; num_questions+=1
+                temp_obj["total_marks"] = marks
+                temp_obj["num_questions"] = num_questions
+                temp_obj["id"] = paper.id
+                temp_obj.update({'noQues': False})
+            except:
+                temp_obj.update({'noQues': True})
+
             data["papers"].append(temp_obj)
+            
         return Response(data, status=status.HTTP_200_OK)
 
 

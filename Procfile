@@ -1,0 +1,1 @@
+web: gunicorn qbag_api.wsgi

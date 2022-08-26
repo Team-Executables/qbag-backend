@@ -30,7 +30,7 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'qbag.netlify.app',,
+    'qbag.netlify.app',
     'qbag-backend2.herokuapp.com',
 ]
 

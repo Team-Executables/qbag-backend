@@ -443,11 +443,10 @@ class GetAllPaperView(generics.GenericAPIView):
     def get(self, request):
         all_papers = Paper.objects.filter(teacher=request.user.teacher.id)
         data = {"papers": []}
-        temp_obj = {}
         for paper in all_papers:
-            temp_obj = {"name": paper.name}
-            all_questions = paper.questionpaper_set.all()
             try:
+                temp_obj = {"name": paper.name}
+                all_questions = paper.questionpaper_set.all()
                 temp_obj["board"] = all_questions[0].question.board
                 temp_obj["grade"] = all_questions[0].question.grade
                 temp_obj["export_date"] = paper.export_date
@@ -459,7 +458,7 @@ class GetAllPaperView(generics.GenericAPIView):
                 temp_obj["id"] = paper.id
                 temp_obj.update({'noQues': False})
             except:
-                temp_obj.update({'noQues': True})
+                temp_obj = {"name": paper.name, "noQues": True}
 
             data["papers"].append(temp_obj)
             

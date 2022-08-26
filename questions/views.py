@@ -155,11 +155,15 @@ class RetreiveQuestionView(generics.GenericAPIView):
 
     def post(self, request):
         data = request.data
+        try:
+            additional_ques = request.data["additional_ques"]
+        except:
+            additional_ques = 0
         all_ques = list()
 
-        num_easy = math.ceil(int(data.get('easy')) * 1.33)
-        num_medium = math.ceil(int(data.get('medium')) * 1.33)
-        num_hard = math.ceil(int(data.get('hard')) * 1.33)
+        num_easy = math.ceil(int(data.get('easy')) * (1 + additional_ques*0.01))
+        num_medium = math.ceil(int(data.get('medium')) * (1 + additional_ques*0.01))
+        num_hard = math.ceil(int(data.get('hard')) * (1 + additional_ques*0.01))
 
         easy_ques = Question.objects.filter(
             difficulty='a',
@@ -225,7 +229,7 @@ class RetreiveQuestionView(generics.GenericAPIView):
                         'keyword_data': keyword_ser.data,
                         'match_data': match_ser.data,
                     })
-
+                    
         return Response(questions, status=status.HTTP_200_OK)
 
 

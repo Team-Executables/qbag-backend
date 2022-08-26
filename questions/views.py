@@ -155,10 +155,9 @@ class RetreiveQuestionView(generics.GenericAPIView):
 
     def post(self, request):
         data = request.data
-        try:
-            additional_ques = request.data["additional_ques"]
-        except:
-            additional_ques = 0
+        additional_ques = request.data["additional_ques"] or 0.0
+
+
         all_ques = list()
 
         num_easy = math.ceil(int(data.get('easy')) * (1 + additional_ques*0.01))

@@ -69,7 +69,7 @@ MIDDLEWARE = [
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 CORS_ALLOWED_ORIGINS = [
-    'qbag.netlify.app',
+    'https://qbag.netlify.app',
     'http://localhost:3000',
 ]
 

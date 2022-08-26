@@ -270,7 +270,7 @@ class GetAllMyQuestionsView(generics.GenericAPIView):
     permission_classes = (IsTeacher,)
     serializer_class = GetQuestionSerializer
 
-    def post(self, request):
+    def get(self, request):
         all_ques = Question.objects.filter(setter=request.user.id)
 
         questions = []

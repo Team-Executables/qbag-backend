@@ -158,10 +158,9 @@ class RetreiveQuestionView(generics.GenericAPIView):
 
     def post(self, request):
         data = request.data
-        try:
-            additional_ques = request.data["additional_ques"]
-        except:
-            additional_ques = 0
+        additional_ques = data.get("additional_ques") or 0.0
+
+
         all_ques = list()
 
         num_easy = math.ceil(int(data.get('easy')) * (1 + additional_ques*0.01))
@@ -450,11 +449,10 @@ class GetAllPaperView(generics.GenericAPIView):
     def get(self, request):
         all_papers = Paper.objects.filter(teacher=request.user.teacher.id)
         data = {"papers": []}
-        temp_obj = {}
         for paper in all_papers:
-            temp_obj = {"name": paper.name}
-            all_questions = paper.questionpaper_set.all()
             try:
+                temp_obj = {"name": paper.name}
+                all_questions = paper.questionpaper_set.all()
                 temp_obj["board"] = all_questions[0].question.board
                 temp_obj["grade"] = all_questions[0].question.grade
                 temp_obj["export_date"] = paper.export_date
@@ -466,7 +464,7 @@ class GetAllPaperView(generics.GenericAPIView):
                 temp_obj["id"] = paper.id
                 temp_obj.update({'noQues': False})
             except:
-                temp_obj.update({'noQues': True})
+                temp_obj = {"name": paper.name, "noQues": True}
 
             data["papers"].append(temp_obj)
             

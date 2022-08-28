@@ -6,7 +6,7 @@ _Question Bank Generator uses a crowd sourcing model to prepare question banks f
 
 <br/>
 
-**Link to the website:** []()
+**Link to the website:** [https://qbag.netlify.app/](https://qbag.netlify.app/)
 <br/>
 **Link to frontend repo:** [https://github.com/Team-Executables/qbag-frontend](https://github.com/Team-Executables/qbag-frontend)
 <br/>

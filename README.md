@@ -1,6 +1,6 @@
-# QBag Backend
+# QBaG Backend
 
-_This project serves as backend for [QBag frontend](https://github.com/Team-Executables/qbag-frontend)._
+_This project serves as backend for [QBaG frontend](https://github.com/Team-Executables/qbag-frontend)._
 
 _Question Bank Generator uses a crowd sourcing model to prepare question banks from a large pool of objective questions. QBaG provides an interface for paper setters and academicians to generate reliable question papers using our automated and robust system. The questions can be selected based on a range of parameters and can be exported to your desired format within minutes. Each question contributed is passed through a number of checks and is also vetted by experts._
 
@@ -14,11 +14,10 @@ _Question Bank Generator uses a crowd sourcing model to prepare question banks f
 
 
 ### Tech Stack ###
-* Material UI v5.1.1
-* ReactJS v17.0.2
-* RestAPI
-* PyTorch v1.11.0
+* Django REST Framework v3.13.1
 * Django v4.0.3
+* PyTorch v1.11.0
+* Simple JWT v5.1.0
 
 
 ### API Endpoints ###

@@ -1,4 +1,4 @@
-# QBaG Backend
+# QBaG (Question Bank Generator) Backend
 
 _This project serves as backend for [QBaG frontend](https://github.com/Team-Executables/qbag-frontend)._
 
@@ -12,6 +12,7 @@ _Question Bank Generator uses a crowd sourcing model to prepare question banks f
 <br/>
 **Link to project presentation:** [https://github.com/Team-Executables/qbag-frontend/blob/main/Question%20Bank%20Generator.pdf](https://github.com/Team-Executables/qbag-frontend/blob/main/Question%20Bank%20Generator.pdf)
 
+<br/>
 
 ### Tech Stack ###
 * Django REST Framework v3.13.1
@@ -19,6 +20,7 @@ _Question Bank Generator uses a crowd sourcing model to prepare question banks f
 * PyTorch v1.11.0
 * Simple JWT v5.1.0
 
+<br/>
 
 ### API Endpoints ###
 **Authentication:**
